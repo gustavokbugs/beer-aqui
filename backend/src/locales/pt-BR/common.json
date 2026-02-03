@@ -1,0 +1,50 @@
+{
+  "errors": {
+    "internal_server_error": "Erro interno do servidor",
+    "not_found": "Recurso não encontrado",
+    "unauthorized": "Não autorizado",
+    "forbidden": "Acesso negado",
+    "bad_request": "Requisição inválida",
+    "validation_error": "Erro de validação",
+    "database_error": "Erro no banco de dados",
+    "user": {
+      "not_found": "Usuário não encontrado",
+      "already_exists": "Usuário já existe",
+      "invalid_credentials": "Credenciais inválidas",
+      "not_adult": "Você deve ser maior de 18 anos",
+      "email_not_verified": "Email não verificado"
+    },
+    "vendor": {
+      "not_found": "Estabelecimento não encontrado",
+      "not_verified": "Estabelecimento não verificado",
+      "invalid_cnpj": "CNPJ inválido"
+    },
+    "product": {
+      "not_found": "Produto não encontrado",
+      "out_of_stock": "Produto fora de estoque",
+      "invalid_price": "Preço inválido"
+    },
+    "ad": {
+      "not_found": "Anúncio não encontrado",
+      "expired": "Anúncio expirado",
+      "payment_pending": "Pagamento pendente"
+    }
+  },
+  "validation": {
+    "required": "{{field}} é obrigatório",
+    "email": "Email inválido",
+    "min_length": "{{field}} deve ter no mínimo {{min}} caracteres",
+    "max_length": "{{field}} deve ter no máximo {{max}} caracteres",
+    "min_value": "{{field}} deve ser maior ou igual a {{min}}",
+    "max_value": "{{field}} deve ser menor ou igual a {{max}}",
+    "invalid_format": "Formato inválido para {{field}}",
+    "must_be_positive": "{{field}} deve ser positivo",
+    "invalid_coordinates": "Coordenadas inválidas"
+  },
+  "success": {
+    "created": "Criado com sucesso",
+    "updated": "Atualizado com sucesso",
+    "deleted": "Deletado com sucesso",
+    "email_sent": "Email enviado com sucesso"
+  }
+}

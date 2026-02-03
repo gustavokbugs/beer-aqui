@@ -26,7 +26,15 @@
     "env:staging": "./scripts/switch-env.sh staging",
     "env:test": "./scripts/switch-env.sh test",
     "db:reset": "prisma migrate reset --force",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write",
+      "jest --bail --findRelatedTests"
+    ]
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -52,7 +60,9 @@
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.2",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
+    "lint-staged": "^16.2.7",
     "prettier": "^3.1.1",
     "prisma": "^5.7.1",
     "supertest": "^6.3.3",

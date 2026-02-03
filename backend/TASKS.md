@@ -1,13 +1,13 @@
 # Backend Tasks - BeerAqui API
 
-## Fase 1: Setup e Fundação
+## Fase 1: Setup e Fundação ✅
 
-### 1.1 Configuração Inicial do Projeto
-- [ ] Inicializar projeto Node.js com TypeScript
-- [ ] Configurar tsconfig.json com strict mode
-- [ ] Configurar ESLint + Prettier
-- [ ] Configurar editorconfig
-- [ ] Criar estrutura de pastas (Clean Architecture)
+### 1.1 Configuração Inicial do Projeto ✅
+- [x] Inicializar projeto Node.js com TypeScript
+- [x] Configurar tsconfig.json com strict mode
+- [x] Configurar ESLint + Prettier
+- [x] Configurar editorconfig
+- [x] Criar estrutura de pastas (Clean Architecture)
   ```
   src/
   ├── domain/           # Entidades e regras de negócio
@@ -18,29 +18,29 @@
   │   └── services/
   └── presentation/     # Controllers e rotas
   ```
-- [ ] Configurar variáveis de ambiente (.env, .env.example)
-- [ ] Configurar Docker e Docker Compose
-- [ ] Adicionar .gitignore adequado
+- [x] Configurar variáveis de ambiente (.env, .env.example)
+- [x] Configurar Docker e Docker Compose
+- [x] Adicionar .gitignore adequado
 
-### 1.2 Setup do Banco de Dados
-- [ ] Configurar PostgreSQL via Docker
-- [ ] Instalar e configurar migration tool (ex: TypeORM, Prisma ou Knex)
-- [ ] Habilitar extensão PostGIS para geolocalização
-- [ ] Criar script de inicialização do banco
-- [ ] Configurar connection pooling
-- [ ] Implementar health check do banco
+### 1.2 Setup do Banco de Dados ✅
+- [x] Configurar PostgreSQL via Docker
+- [x] Instalar e configurar migration tool (ex: TypeORM, Prisma ou Knex)
+- [x] Habilitar extensão PostGIS para geolocalização
+- [x] Criar script de inicialização do banco
+- [x] Configurar connection pooling
+- [x] Implementar health check do banco
 
-### 1.3 Configuração de Qualidade e Testes
-- [ ] Configurar Jest para testes unitários
-- [ ] Configurar Supertest para testes de integração
-- [ ] Configurar cobertura de testes (mínimo 80%)
-- [ ] Configurar Husky para pre-commit hooks
-- [ ] Configurar lint-staged
+### 1.3 Configuração de Qualidade e Testes ✅
+- [x] Configurar Jest para testes unitários
+- [x] Configurar Supertest para testes de integração
+- [x] Configurar cobertura de testes (mínimo 80%)
+- [x] Configurar Husky para pre-commit hooks
+- [x] Configurar lint-staged
 - [ ] Criar pipeline básico de CI
 
-### 1.4 Configuração de Internacionalização
-- [ ] Instalar biblioteca i18n (i18next ou similar)
-- [ ] Criar estrutura de arquivos de tradução
+### 1.4 Configuração de Internacionalização ✅
+- [x] Instalar biblioteca i18n (i18next ou similar)
+- [x] Criar estrutura de arquivos de tradução
   ```
   src/locales/
   ├── pt-BR/
@@ -52,11 +52,11 @@
   └── es/
       └── ...
   ```
-- [ ] Configurar detecção de idioma via header Accept-Language
-- [ ] Configurar fallback para pt-BR
-- [ ] Criar helper para tradução de mensagens de erro
-- [ ] Criar helper para tradução de emails
-- [ ] Configurar tradução de mensagens de validação
+- [x] Configurar detecção de idioma via header Accept-Language
+- [x] Configurar fallback para pt-BR
+- [x] Criar helper para tradução de mensagens de erro
+- [x] Criar helper para tradução de emails
+- [x] Configurar tradução de mensagens de validação
 
 ---
 

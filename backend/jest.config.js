@@ -2,7 +2,8 @@ module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
   roots: ['<rootDir>/src'],
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
+  testMatch: ['**/__tests__/**/*.test.ts', '**/?(*.)+(spec|test).ts'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/', 'setup.ts', 'helpers/'],
   transform: {
     '^.+\\.ts$': 'ts-jest',
   },
@@ -28,8 +29,11 @@ module.exports = {
     '^@/application/(.*)$': '<rootDir>/src/application/$1',
     '^@/infrastructure/(.*)$': '<rootDir>/src/infrastructure/$1',
     '^@/presentation/(.*)$': '<rootDir>/src/presentation/$1',
+    '^@/config/(.*)$': '<rootDir>/src/config/$1',
   },
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true,
+  setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+  testTimeout: 10000,
 };
