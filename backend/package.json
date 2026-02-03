@@ -17,7 +17,19 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:deploy": "prisma migrate deploy",
     "prisma:generate": "prisma generate",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "seed": "tsx prisma/seed.ts",
+    "seed:development": "cp .env.development .env && tsx prisma/seed.ts",
+    "seed:staging": "cp .env.staging .env && tsx prisma/seed.ts",
+    "seed:test": "cp .env.test .env && tsx prisma/seed.ts",
+    "env:dev": "./scripts/switch-env.sh development",
+    "env:staging": "./scripts/switch-env.sh staging",
+    "env:test": "./scripts/switch-env.sh test",
+    "db:reset": "prisma migrate reset --force",
+    "db:push": "prisma db push"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "keywords": [
     "beer",

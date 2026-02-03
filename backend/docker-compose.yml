@@ -1,9 +1,10 @@
 version: '3.8'
 
 services:
-  postgres:
+  # PostgreSQL - Development
+  postgres-dev:
     image: postgis/postgis:15-3.4-alpine
-    container_name: beeraqui-postgres
+    container_name: beeraqui-postgres-dev
     restart: unless-stopped
     environment:
       POSTGRES_USER: beeraqui
@@ -12,13 +13,56 @@ services:
     ports:
       - '5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_dev_data:/var/lib/postgresql/data
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U beeraqui']
       interval: 10s
       timeout: 5s
       retries: 5
 
+  # PostgreSQL - Staging
+  postgres-staging:
+    image: postgis/postgis:15-3.4-alpine
+    container_name: beeraqui-postgres-staging
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: beeraqui
+      POSTGRES_PASSWORD: beeraqui123
+      POSTGRES_DB: beeraqui_staging
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_staging_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U beeraqui']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - staging
+
+  # PostgreSQL - Test
+  postgres-test:
+    image: postgis/postgis:15-3.4-alpine
+    container_name: beeraqui-postgres-test
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: beeraqui
+      POSTGRES_PASSWORD: beeraqui123
+      POSTGRES_DB: beeraqui_test
+    ports:
+      - '5434:5432'
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U beeraqui']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - test
+
+  # Redis
   redis:
     image: redis:7-alpine
     container_name: beeraqui-redis
@@ -33,27 +77,8 @@ services:
       timeout: 5s
       retries: 5
 
-  api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: beeraqui-api
-    restart: unless-stopped
-    ports:
-      - '3000:3000'
-    environment:
-      NODE_ENV: development
-      DATABASE_URL: postgresql://beeraqui:beeraqui123@postgres:5432/beeraqui_dev?schema=public
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./src:/app/src
-      - ./prisma:/app/prisma
-    command: npm run dev
-
 volumes:
-  postgres_data:
+  postgres_dev_data:
+  postgres_staging_data:
+  postgres_test_data:
   redis_data:
