@@ -1,13 +1,14 @@
 import React from 'react';
 import { StatusBar } from 'expo-status-bar';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import '@/locales';
 import { RootNavigator } from '@/navigation';
 
 export default function App() {
   return (
-    <>
+    <SafeAreaProvider>
       <RootNavigator />
       <StatusBar style="auto" />
-    </>
+    </SafeAreaProvider>
   );
 }

@@ -2,16 +2,8 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { MainTabParamList } from './types';
 import { theme } from '@/theme';
-
-// Placeholder screens - will be created later
-import { View } from 'react-native';
+import { SearchScreen, MapScreen, FavoritesScreen, ProfileScreen } from '@/screens';
 import { Text } from '@/components';
-
-const PlaceholderScreen = ({ title }: { title: string }) => (
-  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-    <Text variant="h2">{title}</Text>
-  </View>
-);
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -37,43 +29,43 @@ export const MainNavigator = () => {
     >
       <Tab.Screen
         name="Search"
+        component={SearchScreen}
         options={{
+          headerShown: false,
           tabBarLabel: 'Buscar',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🔍</Text>,
+          tabBarIcon: () => <Text>🔍</Text>,
         }}
-      >
-        {() => <PlaceholderScreen title="Search Screen" />}
-      </Tab.Screen>
+      />
 
       <Tab.Screen
         name="Map"
+        component={MapScreen}
         options={{
+          headerShown: false,
           tabBarLabel: 'Mapa',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>🗺️</Text>,
+          tabBarIcon: () => <Text>🗺️</Text>,
         }}
-      >
-        {() => <PlaceholderScreen title="Map Screen" />}
-      </Tab.Screen>
+      />
 
       <Tab.Screen
         name="Favorites"
+        component={FavoritesScreen}
         options={{
+          headerShown: false,
           tabBarLabel: 'Favoritos',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>⭐</Text>,
+          tabBarIcon: () => <Text>⭐</Text>,
         }}
-      >
-        {() => <PlaceholderScreen title="Favorites Screen" />}
-      </Tab.Screen>
+      />
 
       <Tab.Screen
         name="Profile"
+        component={ProfileScreen}
         options={{
+          headerShown: false,
           tabBarLabel: 'Perfil',
-          tabBarIcon: ({ color }) => <Text style={{ fontSize: 24 }}>👤</Text>,
+          tabBarIcon: () => <Text>👤</Text>,
         }}
-      >
-        {() => <PlaceholderScreen title="Profile Screen" />}
-      </Tab.Screen>
+      />
     </Tab.Navigator>
   );
 };

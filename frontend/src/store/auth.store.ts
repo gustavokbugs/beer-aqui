@@ -24,7 +24,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   accessToken: null,
   refreshToken: null,
   isAuthenticated: false,
-  isLoading: false,
+  isLoading: true,
   error: null,
 
   login: async (credentials: LoginCredentials) => {
@@ -115,10 +115,16 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           isLoading: false,
         });
       } else {
-        set({ isLoading: false });
+        set({ 
+          isAuthenticated: false,
+          isLoading: false 
+        });
       }
     } catch (error) {
-      set({ isLoading: false });
+      set({ 
+        isAuthenticated: false,
+        isLoading: false 
+      });
     }
   },
 

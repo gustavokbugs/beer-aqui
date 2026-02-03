@@ -12,21 +12,33 @@ const Stack = createStackNavigator<RootStackParamList>();
 export const RootNavigator = () => {
   const { isAuthenticated, isLoading, loadStoredAuth } = useAuthStore();
 
+  // Garantir que os valores são boolean
+  const isAuth = Boolean(isAuthenticated);
+  const loading = Boolean(isLoading);
+
   useEffect(() => {
     loadStoredAuth();
   }, []);
 
-  if (isLoading) {
+  if (loading) {
     return <Loading fullScreen message="Carregando..." />;
   }
 
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {isAuthenticated ? (
-          <Stack.Screen name="Main" component={MainNavigator} />
+        {isAuth ? (
+          <Stack.Screen 
+            name="Main" 
+            component={MainNavigator}
+            options={{ headerShown: false }}
+          />
         ) : (
-          <Stack.Screen name="Auth" component={AuthNavigator} />
+          <Stack.Screen 
+            name="Auth" 
+            component={AuthNavigator}
+            options={{ headerShown: false }}
+          />
         )}
       </Stack.Navigator>
     </NavigationContainer>

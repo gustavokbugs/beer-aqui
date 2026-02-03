@@ -1,0 +1,17 @@
+{
+  "map": {
+    "title": "Mapa",
+    "subtitle": "Encuentra vendedores cerca de ti",
+    "myLocation": "Mi Ubicación",
+    "youAreHere": "Estás aquí",
+    "gettingLocation": "Obteniendo tu ubicación...",
+    "mapUnavailable": "Funcionalidad de Mapa",
+    "mapUnavailableMessage": "El mapa interactivo requiere una compilación nativa personalizada.",
+    "mapUnavailableDescription": "Para usar esta funcionalidad, necesitas crear una compilación de desarrollo con:",
+    "yourLocation": "Tu Ubicación Actual:",
+    "latitude": "Latitud",
+    "longitude": "Longitud",
+    "updateLocation": "Actualizar Ubicación",
+    "getLocation": "Obtener Ubicación"
+  }
+}

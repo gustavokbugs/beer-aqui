@@ -75,3 +75,12 @@ export const truncateText = (text: string, maxLength: number): string => {
   }
   return `${text.substring(0, maxLength)}...`;
 };
+
+/**
+ * Get volumeMl from Product (handles both 'volume' and 'volumeMl' fields)
+ * @param product - Product object
+ * @returns Volume in milliliters
+ */
+export const getProductVolume = (product: { volume?: number; volumeMl?: number }): number => {
+  return product.volumeMl || product.volume || 0;
+};

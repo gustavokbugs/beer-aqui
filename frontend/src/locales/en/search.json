@@ -1,0 +1,18 @@
+{
+  "search": {
+    "title": "Search Beers 🍺",
+    "placeholder": "Search by brand...",
+    "nearYou": "Near you",
+    "filters": "Filters",
+    "sortBy": "Sort by",
+    "distance": "Distance",
+    "price": "Price",
+    "volume": "Volume",
+    "noResults": "No products found",
+    "noResultsMessage": "Try searching for another brand or increase the search radius",
+    "locationPermission": "We need your location to find nearby beers",
+    "locationRequired": "📍",
+    "searching": "🔍",
+    "searchingProducts": "Searching for products..."
+  }
+}

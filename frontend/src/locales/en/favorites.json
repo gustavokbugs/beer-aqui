@@ -1,0 +1,7 @@
+{
+  "favorites": {
+    "title": "Favorites",
+    "empty": "No favorites yet",
+    "emptyMessage": "Add products to favorites to access them quickly here"
+  }
+}

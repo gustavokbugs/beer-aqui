@@ -16,20 +16,30 @@ export const Loading: React.FC<LoadingProps> = ({
   message,
   fullScreen = false,
 }) => {
-  const Container = fullScreen ? View : React.Fragment;
-  const containerProps = fullScreen ? { style: styles.fullScreen } : {};
+  if (fullScreen) {
+    return (
+      <View style={styles.fullScreen}>
+        <View style={styles.container}>
+          <ActivityIndicator size={size} color={color} />
+          {message && (
+            <Text variant="body" color="secondary" style={styles.message}>
+              {message}
+            </Text>
+          )}
+        </View>
+      </View>
+    );
+  }
 
   return (
-    <Container {...containerProps}>
-      <View style={styles.container}>
-        <ActivityIndicator size={size} color={color} />
-        {message && (
-          <Text variant="body" color="secondary" style={styles.message}>
-            {message}
-          </Text>
-        )}
-      </View>
-    </Container>
+    <View style={styles.container}>
+      <ActivityIndicator size={size} color={color} />
+      {message && (
+        <Text variant="body" color="secondary" style={styles.message}>
+          {message}
+        </Text>
+      )}
+    </View>
   );
 };
 

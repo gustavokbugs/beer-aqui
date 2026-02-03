@@ -15,7 +15,13 @@ export interface RegisterData {
 }
 
 export interface AuthResponse {
-  user: User;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    emailVerified: boolean;
+  };
   accessToken: string;
   refreshToken: string;
 }
@@ -27,7 +33,15 @@ export const authService = {
   },
 
   async register(data: RegisterData): Promise<AuthResponse> {
-    const response = await apiClient.post<AuthResponse>('/auth/register', data);
+    // Backend expects isAdultConfirmed instead of isAdult
+    const payload = {
+      name: data.name,
+      email: data.email,
+      password: data.password,
+      role: data.role,
+      isAdultConfirmed: data.isAdult,
+    };
+    const response = await apiClient.post<AuthResponse>('/auth/register', payload);
     return response.data;
   },
 
@@ -42,3 +56,5 @@ export const authService = {
     // Just clear local storage - backend doesn't need to know
   },
 };
+
+export default authService;

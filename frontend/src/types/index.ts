@@ -19,7 +19,9 @@ export interface Location {
 
 export interface Vendor {
   id: string;
+  userId: string;
   companyName: string;
+  cnpj?: string;
   type: 'bar' | 'mercado' | 'distribuidora';
   location: Location;
   address: {
@@ -27,24 +29,31 @@ export interface Vendor {
     number: string;
     city: string;
     state: string;
-    zipCode: string;
+    zip: string;
   };
   phone?: string;
   isVerified: boolean;
   distance?: number; // em metros
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Product {
   id: string;
   vendorId: string;
   brand: string;
-  volumeMl: number;
+  volume: number; // Backend usa 'volume' em vez de 'volumeMl'
+  volumeMl?: number; // Alias para compatibilidade
+  volumeInLiters?: number;
   price: number;
+  pricePerLiter?: number;
   isActive: boolean;
   stockQuantity?: number;
   description?: string;
   imageUrl?: string;
   vendor?: Vendor;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Ad {
@@ -63,5 +72,8 @@ export interface SearchFilters {
   minPrice?: number;
   maxPrice?: number;
   vendorType?: string;
+  vendorId?: string;
   radiusKm?: number;
+  page?: number;
+  limit?: number;
 }

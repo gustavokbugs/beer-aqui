@@ -1,0 +1,17 @@
+{
+  "map": {
+    "title": "Map",
+    "subtitle": "Find vendors near you",
+    "myLocation": "My Location",
+    "youAreHere": "You are here",
+    "gettingLocation": "Getting your location...",
+    "mapUnavailable": "Map Feature",
+    "mapUnavailableMessage": "The interactive map requires a custom native build.",
+    "mapUnavailableDescription": "To use this feature, you need to create a development build with:",
+    "yourLocation": "Your Current Location:",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "updateLocation": "Update Location",
+    "getLocation": "Get Location"
+  }
+}
