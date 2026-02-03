@@ -1,6 +1,7 @@
 import { PrismaService } from './database/prisma.service';
 import { BcryptHashService } from './services/bcrypt-hash.service';
 import { JwtTokenService } from './services/jwt-token.service';
+import { RedisCacheService } from './cache/redis.service';
 import { PrismaUserRepository } from './repositories/prisma-user.repository';
 import { PrismaVendorRepository } from './repositories/prisma-vendor.repository';
 import { PrismaProductRepository } from './repositories/prisma-product.repository';
@@ -47,6 +48,7 @@ export class DIContainer {
   private static prismaService: PrismaService;
   private static hashService: BcryptHashService;
   private static tokenService: JwtTokenService;
+  private static cacheService: RedisCacheService;
 
   // Repositories
   private static userRepository: PrismaUserRepository;
@@ -117,7 +119,14 @@ export class DIContainer {
         refreshTokenExpiration
       );
     }
-    return this.tokenService;
+   
+
+  static getCacheService(): RedisCacheService {
+    if (!this.cacheService) {
+      this.cacheService = RedisCacheService.getInstance();
+    }
+    return this.cacheService;
+  } return this.tokenService;
   }
 
   // ========== Repositories ==========
@@ -392,6 +401,13 @@ export class DIContainer {
   static async initialize(): Promise<void> {
     const prisma = this.getPrismaService();
     await prisma.connect();
+
+    // Inicializa cache service (opcional - não bloqueia se Redis não estiver disponível)
+    try {
+      this.getCacheService();
+    } catch (error) {
+      console.warn('⚠️  Cache service not available, continuing without cache');
+    }
   }
 
   /**
@@ -401,6 +417,9 @@ export class DIContainer {
     if (this.prismaService) {
       await this.prismaService.disconnect();
     }
+    if (this.cacheService) {
+      await this.cacheService.disconnect();
+    }
   }
 
   /**
@@ -408,13 +427,23 @@ export class DIContainer {
    */
   static async healthCheck(): Promise<{
     database: boolean;
+    cache: boolean;
     services: boolean;
   }> {
     const prisma = this.getPrismaService();
     const databaseHealthy = await prisma.healthCheck();
 
+    let cacheHealthy = false;
+    try {
+      const cache = this.getCacheService();
+      cacheHealthy = await cache.healthCheck();
+    } catch (error) {
+      cacheHealthy = false;
+    }
+
     return {
       database: databaseHealthy,
+      cache: cacheHealthy,
       services: true, // Hash e Token services são sempre disponíveis
     };
   }

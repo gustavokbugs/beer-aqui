@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { VendorController } from '../controllers/vendor.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { UserRole } from '@/domain/entities/user.entity';
+import { cacheMiddleware, nearbyVendorsCacheKey } from '../middlewares/cache.middleware';
+import { CacheTTL } from '@/infrastructure/cache/cache.helpers';
 
 const router = Router();
 
@@ -14,17 +16,25 @@ router.post('/', authenticate, authorize(UserRole.VENDOR), VendorController.crea
 
 /**
  * @route   GET /api/v1/vendors/nearby
- * @desc    Search nearby vendors
+ * @desc    Search nearby vendors (cached)
  * @access  Public
  */
-router.get('/nearby', VendorController.searchNearby);
+router.get(
+  '/nearby',
+  cacheMiddleware({ ttl: CacheTTL.VENDORS_NEARBY, keyGenerator: nearbyVendorsCacheKey }),
+  VendorController.searchNearby
+);
 
 /**
  * @route   GET /api/v1/vendors/:id
- * @desc    Get vendor profile
+ * @desc    Get vendor profile (cached)
  * @access  Public
  */
-router.get('/:id', VendorController.getProfile);
+router.get(
+  '/:id',
+  cacheMiddleware({ ttl: CacheTTL.VENDOR_PROFILE }),
+  VendorController.getProfile
+);
 
 /**
  * @route   PUT /api/v1/vendors/:id

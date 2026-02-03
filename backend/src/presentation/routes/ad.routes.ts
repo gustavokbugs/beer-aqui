@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { AdController } from '../controllers/ad.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { UserRole } from '@/domain/entities/user.entity';
+import { cacheMiddleware, activeAdsCacheKey } from '../middlewares/cache.middleware';
+import { CacheTTL } from '@/infrastructure/cache/cache.helpers';
 
 const router = Router();
 
@@ -14,10 +16,14 @@ router.post('/', authenticate, authorize(UserRole.VENDOR), AdController.create);
 
 /**
  * @route   GET /api/v1/ads/active
- * @desc    List active ads
+ * @desc    List active ads (cached)
  * @access  Public
  */
-router.get('/active', AdController.listActive);
+router.get(
+  '/active',
+  cacheMiddleware({ ttl: CacheTTL.ADS_ACTIVE, keyGenerator: activeAdsCacheKey }),
+  AdController.listActive
+);
 
 /**
  * @route   POST /api/v1/ads/:id/cancel

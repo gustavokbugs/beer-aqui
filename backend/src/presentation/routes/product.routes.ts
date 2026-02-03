@@ -2,6 +2,12 @@ import { Router } from 'express';
 import { ProductController } from '../controllers/product.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { UserRole } from '@/domain/entities/user.entity';
+import {
+  cacheMiddleware,
+  productSearchCacheKey,
+  vendorProductsCacheKey,
+} from '../middlewares/cache.middleware';
+import { CacheTTL } from '@/infrastructure/cache/cache.helpers';
 
 const router = Router();
 
@@ -14,24 +20,36 @@ router.post('/', authenticate, authorize(UserRole.VENDOR), ProductController.cre
 
 /**
  * @route   GET /api/v1/products/search
- * @desc    Search products
+ * @desc    Search products (cached)
  * @access  Public
  */
-router.get('/search', ProductController.search);
+router.get(
+  '/search',
+  cacheMiddleware({ ttl: CacheTTL.PRODUCTS_SEARCH, keyGenerator: productSearchCacheKey }),
+  ProductController.search
+);
 
 /**
  * @route   GET /api/v1/products/brands/:brand
- * @desc    Search products by brand
+ * @desc    Search products by brand (cached)
  * @access  Public
  */
-router.get('/brands/:brand', ProductController.searchByBrand);
+router.get(
+  '/brands/:brand',
+  cacheMiddleware({ ttl: CacheTTL.PRODUCTS_SEARCH }),
+  ProductController.searchByBrand
+);
 
 /**
  * @route   GET /api/v1/products/:id
- * @desc    Get product details
+ * @desc    Get product details (cached)
  * @access  Public
  */
-router.get('/:id', ProductController.getDetails);
+router.get(
+  '/:id',
+  cacheMiddleware({ ttl: CacheTTL.PRODUCT_DETAILS }),
+  ProductController.getDetails
+);
 
 /**
  * @route   PUT /api/v1/products/:id
