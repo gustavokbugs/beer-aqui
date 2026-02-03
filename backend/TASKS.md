@@ -169,69 +169,80 @@
 
 ---
 
-## Fase 4: Application Layer (Casos de Uso)
+## Fase 4: Application Layer (Casos de Uso) ✅ COMPLETA
 
-### 4.1 Casos de Uso - Autenticação
-- [ ] Use Case: RegisterUser
+### 4.1 Casos de Uso - Autenticação ✅
+- [x] Use Case: RegisterUser (com testes)
   - Validar dados
   - Hash de senha (bcrypt)
   - Criar usuário
   - Enviar email de confirmação (preparar interface)
 
-- [ ] Use Case: AuthenticateUser
+- [x] Use Case: AuthenticateUser (com testes)
   - Validar credenciais
   - Gerar JWT com refresh token
   - Registrar último acesso
 
-- [ ] Use Case: RefreshToken
+- [x] Use Case: RefreshToken
   - Validar refresh token
   - Gerar novo access token
 
-- [ ] Use Case: ConfirmEmail
-- [ ] Use Case: RequestPasswordReset
-- [ ] Use Case: ResetPassword
+- [x] Use Case: ConfirmEmail
+- [x] Use Case: RequestPasswordReset
+- [x] Use Case: ResetPassword
 
-### 4.2 Casos de Uso - Vendedor
-- [ ] Use Case: CreateVendor
+### 4.2 Casos de Uso - Vendedor ✅
+- [x] Use Case: CreateVendor (com testes)
   - Validar CNPJ (algoritmo + API externa preparada)
   - Validar localização
   - Geocoding de endereço
 
-- [ ] Use Case: UpdateVendor
-- [ ] Use Case: GetVendorProfile
-- [ ] Use Case: VerifyVendor (admin only)
+- [x] Use Case: SearchNearbyVendors
+  - Query geoespacial
+  - Filtros por tipo e verificação
 
-### 4.3 Casos de Uso - Produtos
-- [ ] Use Case: CreateProduct
+- [x] Use Case: UpdateVendor
+- [x] Use Case: GetVendorProfile
+- [x] Use Case: VerifyVendor (admin only)
+
+### 4.3 Casos de Uso - Produtos ✅
+- [x] Use Case: CreateProduct
   - Validar volume permitido
   - Validar preço
   - Upload de imagem (preparar interface)
 
-- [ ] Use Case: UpdateProduct
-- [ ] Use Case: UpdateProductPrice
-- [ ] Use Case: ToggleProductStatus
-- [ ] Use Case: DeleteProduct (soft delete)
-- [ ] Use Case: ListVendorProducts
+- [x] Use Case: SearchProducts (com testes)
+  - Filtros (marca, preço, volume)
+  - Paginação
 
-### 4.4 Casos de Uso - Busca
-- [ ] Use Case: SearchProductsByLocation
+- [x] Use Case: UpdateProduct
+- [x] Use Case: UpdateProductPrice
+- [x] Use Case: ToggleProductStatus
+- [x] Use Case: DeleteProduct (soft delete)
+- [x] Use Case: ListVendorProducts
+
+### 4.4 Casos de Uso - Busca ✅
+- [x] Use Case: SearchProductsByLocation (via SearchNearbyVendors)
   - Query geoespacial (PostGIS)
   - Filtros (marca, preço, volume)
   - Ordenação (anúncios prioritários)
   - Paginação
 
-- [ ] Use Case: GetProductDetails
-- [ ] Use Case: SearchProductsByBrand
+- [x] Use Case: GetProductDetails
+- [x] Use Case: SearchProductsByBrand
 
-### 4.5 Casos de Uso - Anúncios
-- [ ] Use Case: CreateAd
+### 4.5 Casos de Uso - Anúncios ✅
+- [x] Use Case: CreateAd
   - Validar período
   - Validar produto
   - Criar registro de pagamento
 
-- [ ] Use Case: ListActiveAds
-- [ ] Use Case: CancelAd
-- [ ] Use Case: ExpireAds (job automático)
+- [x] Use Case: ListActiveAds
+
+- [x] Use Case: CancelAd (com reembolso)
+- [x] Use Case: ExpireAds (job automático)
+
+**Total: 22 Use Cases implementados + 4 suítes de testes**
 
 ---
 

@@ -67,3 +67,24 @@ export class InsufficientStockError extends DomainError {
     this.name = 'InsufficientStockError';
   }
 }
+
+export class NotFoundError extends DomainError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NotFoundError';
+  }
+}
+
+export class UnauthorizedError extends DomainError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UnauthorizedError';
+  }
+}
+
+export class ConflictError extends DomainError {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ConflictError';
+  }
+}
