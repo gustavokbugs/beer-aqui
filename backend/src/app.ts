@@ -87,23 +87,5 @@ export class App {
     await DIContainer.shutdown();
     console.log('👋 Server stopped gracefully');
   }
-}  // 404 handler
-  app.use((_req: Request, res: Response) => {
-    res.status(404).json({
-      error: 'Not Found',
-      message: 'The requested resource was not found',
-    });
-  });
-
-  // Error handler
-  app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
-    console.error('Unhandled error:', err);
-    res.status(500).json({
-      error: 'Internal Server Error',
-      message: env.NODE_ENV === 'development' ? err.message : 'Something went wrong',
-    });
-  });
-
-  return app;
 }
 

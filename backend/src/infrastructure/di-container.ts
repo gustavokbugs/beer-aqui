@@ -119,14 +119,14 @@ export class DIContainer {
         refreshTokenExpiration
       );
     }
-   
+    return this.tokenService;
+  }
 
   static getCacheService(): RedisCacheService {
     if (!this.cacheService) {
       this.cacheService = RedisCacheService.getInstance();
     }
     return this.cacheService;
-  } return this.tokenService;
   }
 
   // ========== Repositories ==========
