@@ -1,0 +1,14 @@
+{
+  "search": {
+    "title": "Buscar cervejas",
+    "placeholder": "Buscar por marca...",
+    "nearYou": "Perto de você",
+    "filters": "Filtros",
+    "sortBy": "Ordenar por",
+    "distance": "Distância",
+    "price": "Preço",
+    "volume": "Volume",
+    "noResults": "Nenhum resultado encontrado",
+    "locationPermission": "Precisamos da sua localização para encontrar cervejas próximas"
+  }
+}

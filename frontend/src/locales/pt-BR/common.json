@@ -1,0 +1,26 @@
+{
+  "common": {
+    "appName": "BeerAqui",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "close": "Fechar",
+    "retry": "Tentar novamente",
+    "seeMore": "Ver mais",
+    "seeLess": "Ver menos"
+  },
+  "errors": {
+    "generic": "Algo deu errado. Tente novamente.",
+    "network": "Erro de conexão. Verifique sua internet.",
+    "notFound": "Não encontrado",
+    "unauthorized": "Não autorizado",
+    "validation": "Por favor, verifique os dados informados."
+  }
+}
