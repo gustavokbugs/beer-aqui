@@ -1,0 +1,35 @@
+{
+  "common": {
+    "appName": "BeerAqui",
+    "tagline": "Encontre cerveja perto de você",
+    "loading": "Carregando...",
+    "error": "Erro",
+    "success": "Sucesso",
+    "cancel": "Cancelar",
+    "confirm": "Confirmar",
+    "save": "Salvar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "close": "Fechar",
+    "retry": "Tentar novamente",
+    "ok": "OK",
+    "seeMore": "Ver mais",
+    "seeLess": "Ver menos"
+  },
+  "errors": {
+    "generic": "Algo deu errado. Tente novamente.",
+    "network": "Erro de conexão. Verifique sua internet.",
+    "notFound": "Não encontrado",
+    "unauthorized": "Não autorizado",
+    "validation": "Por favor, verifique os dados informados.",
+    "location": "Erro de Localização"
+  },
+  "tabs": {
+    "search": "Buscar",
+    "map": "Mapa",
+    "favorites": "Favoritos",
+    "profile": "Perfil"
+  }
+}

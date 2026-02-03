@@ -1,0 +1,18 @@
+{
+  "search": {
+    "title": "Buscar Cervejas 🍺",
+    "placeholder": "Buscar por marca...",
+    "nearYou": "Perto de você",
+    "filters": "Filtros",
+    "sortBy": "Ordenar por",
+    "distance": "Distância",
+    "price": "Preço",
+    "volume": "Volume",
+    "noResults": "Nenhum produto encontrado",
+    "noResultsMessage": "Tente buscar por outra marca ou aumentar o raio de busca",
+    "locationPermission": "Precisamos da sua localização para encontrar cervejas próximas",
+    "locationRequired": "📍",
+    "searching": "🔍",
+    "searchingProducts": "Buscando produtos..."
+  }
+}

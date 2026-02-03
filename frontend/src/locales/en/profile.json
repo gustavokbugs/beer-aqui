@@ -1,0 +1,14 @@
+{
+  "profile": {
+    "title": "Profile",
+    "myProfile": "My Profile",
+    "email": "Email",
+    "settings": "Settings",
+    "language": "Language",
+    "notifications": "Notifications",
+    "help": "Help & Support",
+    "about": "About",
+    "logout": "Sign Out",
+    "version": "Version"
+  }
+}

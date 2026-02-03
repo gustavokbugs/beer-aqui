@@ -1,0 +1,35 @@
+{
+  "common": {
+    "appName": "BeerAqui",
+    "tagline": "Find beer near you",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "close": "Close",
+    "retry": "Try again",
+    "ok": "OK",
+    "seeMore": "See more",
+    "seeLess": "See less"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Connection error. Check your internet.",
+    "notFound": "Not found",
+    "unauthorized": "Unauthorized",
+    "validation": "Please check the information provided.",
+    "location": "Location Error"
+  },
+  "tabs": {
+    "search": "Search",
+    "map": "Map",
+    "favorites": "Favorites",
+    "profile": "Profile"
+  }
+}
