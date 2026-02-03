@@ -246,22 +246,55 @@
 
 ---
 
-## Fase 5: Infrastructure Layer
+## Fase 5: Infrastructure Layer ✅ COMPLETA
 
-### 5.1 Implementar Repositórios
-- [ ] Repository: UserRepository (TypeORM/Prisma)
-- [ ] Repository: VendorRepository (com queries geoespaciais)
-- [ ] Repository: ProductRepository
-- [ ] Repository: AdRepository
+### 5.1 Implementar Repositórios ✅
+- [x] Repository: UserRepository (Prisma)
+  - Mapeamento completo entre domínio e Prisma
+  - findById, findByEmail, save, update
 
-### 5.2 Implementar Serviços de Infraestrutura
-- [ ] Service: HashService (bcrypt)
-- [ ] Service: TokenService (JWT)
+- [x] Repository: VendorRepository (com queries geoespaciais)
+  - Queries PostGIS (ST_DWithin, ST_Distance)
+  - Parse de coordenadas WKT
+  - Busca por proximidade otimizada
+
+- [x] Repository: ProductRepository
+  - Busca com múltiplos filtros
+  - Paginação eficiente
+  - findById, findByVendorId, search, save, update
+
+- [x] Repository: AdRepository
+  - Queries por status e produto
+  - findById, findByStatus, findActiveByProduct, save, update
+
+### 5.2 Implementar Serviços de Infraestrutura ✅
+- [x] Service: BcryptHashService
+  - Implementação de IHashService
+  - Salt rounds configurável (padrão: 10)
+  - hash() e compare()
+
+- [x] Service: JwtTokenService
+  - Implementação de ITokenService
+  - Access token (15min) e Refresh token (7 dias)
+  - Secrets separados
+  - generateAccessToken, generateRefreshToken, verify methods
+
+- [x] Service: PrismaService
+  - Singleton pattern
+  - Connection pooling automático
+  - Health check
+  - Logs configuráveis por ambiente
+
+- [x] DIContainer
+  - Injeção de dependências centralizada
+  - Lazy initialization
+  - 22 use cases configurados
+  - Métodos de ciclo de vida (initialize, shutdown, healthCheck)
+
 - [ ] Service: EmailService (interface + mock)
 - [ ] Service: StorageService (upload de imagens - S3/local)
 - [ ] Service: CNPJValidatorService (interface + mock API)
 - [ ] Service: GeocodingService (Google Maps API/Nominatim)
-- [ ] Service: TranslationService (i18n)
 
 ### 5.3 Middleware e Segurança
 - [ ] Middleware: Authentication
