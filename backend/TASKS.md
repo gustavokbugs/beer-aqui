@@ -60,10 +60,10 @@
 
 ---
 
-## Fase 2: Modelagem de Dados
+## Fase 2: Modelagem de Dados ✅
 
-### 2.1 Criar Migrations - Entidades Base
-- [ ] Migration: Tabela `users`
+### 2.1 Criar Migrations - Entidades Base ✅
+- [x] Migration: Tabela `users`
   - id (UUID)
   - name (VARCHAR)
   - email (VARCHAR UNIQUE)
@@ -75,7 +75,7 @@
   - updated_at (TIMESTAMP)
   - deleted_at (TIMESTAMP) - soft delete
 
-- [ ] Migration: Tabela `vendors`
+- [x] Migration: Tabela `vendors`
   - id (UUID)
   - user_id (UUID FK)
   - company_name (VARCHAR)
@@ -92,7 +92,7 @@
   - created_at (TIMESTAMP)
   - updated_at (TIMESTAMP)
 
-- [ ] Migration: Tabela `products`
+- [x] Migration: Tabela `products`
   - id (UUID)
   - vendor_id (UUID FK)
   - brand (VARCHAR)
@@ -105,7 +105,7 @@
   - created_at (TIMESTAMP)
   - updated_at (TIMESTAMP)
 
-- [ ] Migration: Tabela `ads`
+- [x] Migration: Tabela `ads`
   - id (UUID)
   - product_id (UUID FK)
   - start_date (TIMESTAMP)
@@ -116,50 +116,50 @@
   - created_at (TIMESTAMP)
   - updated_at (TIMESTAMP)
 
-### 2.2 Criar Índices e Constraints
-- [ ] Índice geoespacial em vendors.location
-- [ ] Índice composto (vendor_id, is_active) em products
-- [ ] Índice em ads (product_id, status, priority)
-- [ ] Índice em users.email
-- [ ] Constraints de validação (ex: price > 0)
+### 2.2 Criar Índices e Constraints ✅
+- [x] Índice geoespacial em vendors.location
+- [x] Índice composto (vendor_id, is_active) em products
+- [x] Índice em ads (product_id, status, priority)
+- [x] Índice em users.email (unique já cria índice)
+- [x] Constraints de validação (ex: price > 0)
 
-### 2.3 Seeds de Desenvolvimento
-- [ ] Seed: Usuários de teste
-- [ ] Seed: Vendedores de teste com diferentes tipos
-- [ ] Seed: Produtos variados
-- [ ] Seed: Anúncios ativos e expirados
+### 2.3 Seeds de Desenvolvimento ✅
+- [x] Seed: Usuários de teste
+- [x] Seed: Vendedores de teste com diferentes tipos
+- [x] Seed: Produtos variados
+- [x] Seed: Anúncios ativos e expirados
 
 ---
 
-## Fase 3: Domain Layer (Entidades e Value Objects)
+## Fase 3: Domain Layer (Entidades e Value Objects) ✅
 
-### 3.1 Criar Entidades de Domínio
-- [ ] Entity: User
+### 3.1 Criar Entidades de Domínio ✅
+- [x] Entity: User
   - Validações de email
   - Validação de idade (+18)
   - Métodos de domínio
 
-- [ ] Entity: Vendor
+- [x] Entity: Vendor
   - Validação de CNPJ
   - Validação de tipo
   - Cálculo de distância
 
-- [ ] Entity: Product
+- [x] Entity: Product
   - Validação de volume (valores permitidos)
   - Validação de preço
   - Ativação/desativação
 
-- [ ] Entity: Ad
+- [x] Entity: Ad
   - Validação de período
   - Cálculo de status
   - Priorização
 
-### 3.2 Criar Value Objects
-- [ ] VO: Email
-- [ ] VO: CNPJ
-- [ ] VO: Location (latitude, longitude)
-- [ ] VO: Money (price)
-- [ ] VO: Volume
+### 3.2 Criar Value Objects ✅
+- [x] VO: Email
+- [x] VO: CNPJ
+- [x] VO: Location (latitude, longitude)
+- [ ] VO: Money (price) - Usando Decimal do Prisma
+- [ ] VO: Volume - Usando enum/constantes
 
 ### 3.3 Criar Interfaces de Repositório (Ports)
 - [ ] IUserRepository
