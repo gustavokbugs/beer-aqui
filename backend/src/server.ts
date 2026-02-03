@@ -1,23 +1,40 @@
-import 'express-async-errors';
-import { env } from './config/env';
-import { initializeDatabase } from './infrastructure/database/health';
-import { createApp } from './app';
+import 'dotenv/config';
+import { App } from './app';
 
-const PORT = parseInt(env.PORT, 10);
+const port = parseInt(process.env.PORT || '3000', 10);
+const app = new App();
 
-async function startServer(): Promise<void> {
-  try {
-    await initializeDatabase();
-    
-    const app = createApp();
-    
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📝 Environment: ${env.NODE_ENV}`);
-      console.log(`🔗 Health check: http://localhost:${PORT}/health`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error);
+// Start server
+app.start(port).catch((error) => {
+  console.error('Failed to start server:', error);
+  process.exit(1);
+});
+
+// Graceful shutdown
+const gracefulShutdown = async (signal: string) => {
+  console.log(`\n${signal} received. Starting graceful shutdown...`);
+  await app.stop();
+  process.exit(0);
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+// Unhandled rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
     process.exit(1);
   }
 }

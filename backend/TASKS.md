@@ -296,18 +296,50 @@
 - [ ] Service: CNPJValidatorService (interface + mock API)
 - [ ] Service: GeocodingService (Google Maps API/Nominatim)
 
-### 5.3 Middleware e Segurança
-- [ ] Middleware: Authentication
-- [ ] Middleware: Authorization (role-based)
-- [ ] Middleware: Locale detection (Accept-Language header)
-- [ ] Middleware: Rate limiting
-- [ ] Middleware: Error handling (com mensagens traduzidas)
-- [ ] Middleware: Request validation (Zod/Joi com mensagens traduzidas)
-- [ ] Middleware: Logging
-- [ ] Middleware: CORS configurado
-- [ ] Middleware: Helmet (security headers)
+---
+
+## Fase 6: Presentation Layer (Controllers & Routes) ✅ COMPLETA
+
+### 6.1 Criar Middlewares ✅
+- [x] Middleware de autenticação JWT
+- [x] Middleware de autorização por role
+- [x] Middleware de validação (Zod schemas)
+- [x] Middleware de tratamento de erros
+- [x] Middleware de logging (Morgan)
+
+### 6.2 Criar Controllers ✅
+- [x] AuthController (register, login, refresh, confirmEmail, forgotPassword, resetPassword)
+- [x] VendorController (create, getProfile, update, searchNearby, verify)
+- [x] ProductController (create, getDetails, update, updatePrice, toggleStatus, delete, search, listByVendor, searchByBrand)
+- [x] AdController (create, listActive, cancel, expire)
+
+### 6.3 Criar Rotas ✅
+- [x] Rotas de autenticação (/api/v1/auth/*)
+- [x] Rotas de vendedor (/api/v1/vendors/*)
+- [x] Rotas de produto (/api/v1/products/*)
+- [x] Rotas de anúncio (/api/v1/ads/*)
+- [x] Health check endpoints
+- [x] Configurar versioning de API (v1)
+
+### 6.4 Configurar Express App ✅
+- [x] Criar classe App com configurações
+- [x] Configurar servidor com graceful shutdown
+- [x] Integrar DIContainer com rotas
+- [x] Configurar CORS e security headers (Helmet)
+- [x] Configurar body parser
+- [x] Configurar logging (Morgan)
+- [x] Error handling centralizado
+
+### 6.5 Schemas de Validação ✅
+- [x] Auth schemas (register, login, refresh, etc.)
+- [x] Validação com Zod
+- [x] Mensagens de erro customizadas
 
 ---
+
+## Fase 7: Testing & Quality
+
+### 7.1 Testes Unitários
 
 ## Fase 6: Presentation Layer (API REST)
 

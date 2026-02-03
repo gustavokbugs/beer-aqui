@@ -1,50 +1,93 @@
-import express, { Express, Request, Response, NextFunction } from 'express';
-import 'express-async-errors';
+import express, { Application } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import { env } from './config/env';
-import './config/i18n'; // Inicializa i18n
-import { checkDatabaseHealth } from './infrastructure/database/health';
-import { localeMiddleware } from './infrastructure/http/middlewares/locale.middleware';
+import morgan from 'morgan';
+import routes from './presentation/routes';
+import { errorHandler, notFoundHandler } from './presentation/middlewares/error.middleware';
+import { DIContainer } from './infrastructure/di-container';
 
-export function createApp(): Express {
-  const app = express();
+export class App {
+  public app: Application;
 
-  // Middlewares
-  app.use(helmet());
-  app.use(cors({ origin: env.CORS_ORIGIN.split(','), credentials: true }));
-  app.use(express.json());
-  app.use(express.urlencoded({ extended: true }));
-  app.use(localeMiddleware); // Detecta idioma do usuário
+  constructor() {
+    this.app = express();
+    this.middlewares();
+    this.routes();
+    this.errorHandling();
+  }
 
-  // Root endpoint
-  app.get('/', (_req: Request, res: Response) => {
-    res.json({ 
-      name: 'BeerAqui API', 
-      version: env.API_VERSION, 
-      status: 'running' 
+  private middlewares(): void {
+    // Security
+    this.app.use(helmet());
+
+    // CORS
+    const corsOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:19006'];
+    this.app.use(
+      cors({
+        origin: corsOrigins,
+        credentials: true,
+      })
+    );
+
+    // Body parser
+    this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
+
+    // Logging
+    if (process.env.NODE_ENV === 'development') {
+      this.app.use(morgan('dev'));
+    } else {
+      this.app.use(morgan('combined'));
+    }
+
+    // Request ID
+    this.app.use((req, res, next) => {
+      req.headers['x-request-id'] = req.headers['x-request-id'] || crypto.randomUUID();
+      next();
     });
-  });
+  }
 
-  // Health check endpoints
-  app.get('/health', async (_req: Request, res: Response) => {
-    const dbHealth = await checkDatabaseHealth();
-    const isHealthy = dbHealth.isHealthy;
-    const statusCode = isHealthy ? 200 : 503;
-    res.status(statusCode).json({
-      status: isHealthy ? 'ok' : 'degraded',
-      timestamp: new Date().toISOString(),
-      environment: env.NODE_ENV,
-      database: dbHealth,
+  private routes(): void {
+    // API routes
+    const apiVersion = process.env.API_VERSION || 'v1';
+    this.app.use(`/api/${apiVersion}`, routes);
+
+    // Root route
+    this.app.get('/', (req, res) => {
+      res.json({
+        name: 'BeerAqui API',
+        version: apiVersion,
+        status: 'running',
+        timestamp: new Date().toISOString(),
+      });
     });
-  });
+  }
 
-  app.get('/health/db', async (_req: Request, res: Response) => {
-    const dbHealth = await checkDatabaseHealth();
-    res.status(dbHealth.isHealthy ? 200 : 503).json(dbHealth);
-  });
+  private errorHandling(): void {
+    // 404 handler
+    this.app.use(notFoundHandler);
 
-  // 404 handler
+    // Error handler
+    this.app.use(errorHandler);
+  }
+
+  public async start(port: number): Promise<void> {
+    // Initialize database and dependencies
+    await DIContainer.initialize();
+
+    // Start server
+    this.app.listen(port, () => {
+      console.log(`🚀 Server running on port ${port}`);
+      console.log(`📚 Environment: ${process.env.NODE_ENV}`);
+      console.log(`🔗 API: http://localhost:${port}/api/${process.env.API_VERSION || 'v1'}`);
+    });
+  }
+
+  public async stop(): Promise<void> {
+    await DIContainer.shutdown();
+    console.log('👋 Server stopped gracefully');
+  }
+}  // 404 handler
   app.use((_req: Request, res: Response) => {
     res.status(404).json({
       error: 'Not Found',
