@@ -1,0 +1,120 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["postgresqlExtensions"]
+}
+
+datasource db {
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  extensions = [postgis]
+}
+
+model User {
+  id               String    @id @default(uuid())
+  name             String
+  email            String    @unique
+  passwordHash     String    @map("password_hash")
+  role             UserRole
+  isAdultConfirmed Boolean   @default(false) @map("is_adult_confirmed")
+  emailVerified    Boolean   @default(false) @map("email_verified")
+  emailVerifiedAt  DateTime? @map("email_verified_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  updatedAt        DateTime  @updatedAt @map("updated_at")
+  deletedAt        DateTime? @map("deleted_at")
+  vendor           Vendor?
+
+  @@map("users")
+}
+
+model Vendor {
+  id            String     @id @default(uuid())
+  userId        String     @unique @map("user_id")
+  companyName   String     @map("company_name")
+  cnpj          String     @unique
+  type          VendorType
+  latitude      Float
+  longitude     Float
+  addressStreet String     @map("address_street")
+  addressNumber String     @map("address_number")
+  addressCity   String     @map("address_city")
+  addressState  String     @map("address_state")
+  addressZip    String     @map("address_zip")
+  phone         String?
+  isVerified    Boolean    @default(false) @map("is_verified")
+  createdAt     DateTime   @default(now()) @map("created_at")
+  updatedAt     DateTime   @updatedAt @map("updated_at")
+  products      Product[]
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([latitude, longitude])
+  @@map("vendors")
+}
+
+model Product {
+  id            String   @id @default(uuid())
+  vendorId      String   @map("vendor_id")
+  brand         String
+  volume        Int
+  price         Decimal  @db.Decimal(10, 2)
+  isActive      Boolean  @default(true) @map("is_active")
+  stockQuantity Int      @default(0) @map("stock_quantity")
+  description   String?
+  imageUrl      String?  @map("image_url")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  ads           Ad[]
+  vendor        Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId, isActive])
+  @@index([brand])
+  @@map("products")
+}
+
+model Ad {
+  id            String        @id @default(uuid())
+  productId     String        @map("product_id")
+  startDate     DateTime      @map("start_date")
+  endDate       DateTime      @map("end_date")
+  priority      Int           @default(1)
+  status        AdStatus      @default(active)
+  paymentStatus PaymentStatus @default(pending) @map("payment_status")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+  product       Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId, status, priority])
+  @@index([status, endDate])
+  @@map("ads")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model spatial_ref_sys {
+  srid      Int     @id
+  auth_name String? @db.VarChar(256)
+  auth_srid Int?
+  srtext    String? @db.VarChar(2048)
+  proj4text String? @db.VarChar(2048)
+}
+
+enum UserRole {
+  CLIENT
+  VENDOR
+}
+
+enum VendorType {
+  bar
+  mercado
+  distribuidora
+}
+
+enum AdStatus {
+  active
+  expired
+  cancelled
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  refunded
+}
