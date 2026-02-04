@@ -19,12 +19,19 @@ export interface Location {
 
 export interface Vendor {
   id: string;
-  userId: string;
+  userId?: string;
   companyName: string;
   cnpj?: string;
-  type: 'bar' | 'mercado' | 'distribuidora';
-  location: Location;
-  address: {
+  type: string;
+  // Dados de localização diretos (quando vem do product.vendor)
+  city?: string;
+  state?: string;
+  neighborhood?: string;
+  latitude?: number;
+  longitude?: number;
+  // Dados de localização completos
+  location?: Location;
+  address?: {
     street: string;
     number: string;
     city: string;
@@ -32,7 +39,7 @@ export interface Vendor {
     zip: string;
   };
   phone?: string;
-  isVerified: boolean;
+  isVerified?: boolean;
   distance?: number; // em metros
   createdAt?: string;
   updatedAt?: string;
@@ -74,6 +81,9 @@ export interface SearchFilters {
   vendorType?: string;
   vendorId?: string;
   radiusKm?: number;
+  state?: string;
+  city?: string;
+  neighborhood?: string;
   page?: number;
   limit?: number;
 }

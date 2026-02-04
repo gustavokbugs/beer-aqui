@@ -9,6 +9,10 @@ export interface SearchProductsQuery {
   isActive?: boolean;
   limit?: number;
   offset?: number;
+  // Filtros de localização
+  state?: string;
+  city?: string;
+  neighborhood?: string;
 }
 
 export interface IProductRepository {
@@ -43,7 +47,10 @@ export interface IProductRepository {
   /**
    * Busca produtos com filtros
    */
-  search(query: SearchProductsQuery): Promise<{ products: Product[]; total: number }>;
+  search(query: SearchProductsQuery, page: number, limit: number): Promise<{ 
+    products: Array<{ product: Product; vendor: any }>; 
+    total: number;
+  }>;
 
   /**
    * Busca produtos por marca
@@ -56,5 +63,8 @@ export interface IProductRepository {
   /**
    * Lista todos os produtos ativos
    */
-  findAllActive(page: number, limit: number): Promise<{ products: Product[]; total: number }>;
+  findAllActive(page: number, limit: number): Promise<{ products: Product[]; total: number }>;  /**
+   * Busca sugestões de marcas para autocomplete
+   */
+  searchBrandSuggestions(query: string, limit: number): Promise<string[]>;
 }

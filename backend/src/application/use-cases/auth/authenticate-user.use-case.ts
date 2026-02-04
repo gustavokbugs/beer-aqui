@@ -14,9 +14,11 @@ export class AuthenticateUserUseCase {
   async execute(dto: AuthenticateUserDTO): Promise<AuthResponseDTO> {
     // Validar email
     const email = Email.create(dto.email);
+    console.log('🔍 Tentando autenticar:', email.getValue());
 
     // Buscar usuário
     const user = await this.userRepository.findByEmail(email);
+    console.log('👤 Usuário encontrado:', user ? 'SIM' : 'NÃO');
     if (!user) {
       throw new Error('Invalid credentials');
     }
@@ -27,7 +29,9 @@ export class AuthenticateUserUseCase {
     }
 
     // Verificar senha
+    console.log('🔐 Verificando senha...');
     const isPasswordValid = await this.hashService.compare(dto.password, user.passwordHash);
+    console.log('✅ Senha válida:', isPasswordValid);
     if (!isPasswordValid) {
       throw new Error('Invalid credentials');
     }
