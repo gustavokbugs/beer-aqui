@@ -121,10 +121,13 @@ export class ProductController {
       const useCase = DIContainer.getSearchProductsUseCase();
       const result = await useCase.execute({
         brand: req.query.brand as string,
-        volumeMl: req.query.volumeMl ? parseInt(req.query.volumeMl as string) : undefined,
+        volume: req.query.volume ? parseInt(req.query.volume as string) : undefined,
         minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
         maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
         vendorId: req.query.vendorId as string,
+        state: req.query.state as string,
+        city: req.query.city as string,
+        neighborhood: req.query.neighborhood as string,
         page: req.query.page ? parseInt(req.query.page as string) : undefined,
         limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
       });
@@ -165,8 +168,26 @@ export class ProductController {
       const result = await useCase.execute({
         brand: req.params.brand,
         vendorId: req.query.vendorId as string,
-        volumeMl: req.query.volumeMl ? parseInt(req.query.volumeMl as string) : undefined,
+        volumeMl: req.query.volume ? parseInt(req.query.volume as string) : undefined,
         page: req.query.page ? parseInt(req.query.page as string) : undefined,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+      });
+
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/products/suggestions
+   * Obter sugest\u00f5es de marcas para autocomplete
+   */
+  static async getBrandSuggestions(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = DIContainer.getGetBrandSuggestionsUseCase();
+      const result = await useCase.execute({
+        query: req.query.q as string,
         limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
       });
 

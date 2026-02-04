@@ -17,6 +17,17 @@ export interface UpdateProductDTO {
   isActive?: boolean;
 }
 
+export interface VendorBasicDTO {
+  id: string;
+  companyName: string;
+  type: string;
+  city: string;
+  state: string;
+  neighborhood?: string;
+  latitude: number;
+  longitude: number;
+}
+
 export interface ProductResponseDTO {
   id: string;
   vendorId: string;
@@ -29,6 +40,7 @@ export interface ProductResponseDTO {
   stockQuantity: number;
   description?: string;
   imageUrl?: string;
+  vendor?: VendorBasicDTO;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -39,6 +51,10 @@ export interface SearchProductsDTO {
   minPrice?: number;
   maxPrice?: number;
   volume?: number;
+  // Filtros de localiza\u00e7\u00e3o
+  state?: string;
+  city?: string;
+  neighborhood?: string;
   page?: number;
   limit?: number;
 }

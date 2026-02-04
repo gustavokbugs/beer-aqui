@@ -75,11 +75,12 @@ export class App {
     // Initialize database and dependencies
     await DIContainer.initialize();
 
-    // Start server
-    this.app.listen(port, () => {
+    // Start server - listen on 0.0.0.0 to accept connections from network
+    this.app.listen(port, '0.0.0.0', () => {
       console.log(`🚀 Server running on port ${port}`);
       console.log(`📚 Environment: ${process.env.NODE_ENV}`);
       console.log(`🔗 API: http://localhost:${port}/api/${process.env.API_VERSION || 'v1'}`);
+      console.log(`🌐 Network: http://172.20.10.6:${port}/api/${process.env.API_VERSION || 'v1'}`);
     });
   }
 

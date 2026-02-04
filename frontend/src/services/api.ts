@@ -21,19 +21,27 @@ class ApiClient {
     // Request interceptor - add auth token
     this.client.interceptors.request.use(
       async config => {
+        console.log('📤 API Request:', config.method?.toUpperCase(), config.url);
         const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
-      error => Promise.reject(error)
+      error => {
+        console.error('❌ Request error:', error);
+        return Promise.reject(error);
+      }
     );
 
     // Response interceptor - handle errors
     this.client.interceptors.response.use(
-      response => response,
+      response => {
+        console.log('✅ API Response:', response.config.method?.toUpperCase(), response.config.url, response.status);
+        return response;
+      },
       async (error: AxiosError) => {
+        console.error('❌ Response error:', error.config?.method?.toUpperCase(), error.config?.url, error.message);
         if (error.response?.status === 401) {
           // Token expired - try to refresh
           await this.handleTokenRefresh();

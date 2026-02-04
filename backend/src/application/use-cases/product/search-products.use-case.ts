@@ -10,36 +10,28 @@ export class SearchProductsUseCase {
     page: number;
     limit: number;
   }> {
-    // Validar filtros
-    if (dto.minPrice && dto.minPrice < 0) {
-      throw new Error('Min price cannot be negative');
-    }
-
-    if (dto.maxPrice && dto.maxPrice < 0) {
-      throw new Error('Max price cannot be negative');
-    }
-
-    if (dto.minPrice && dto.maxPrice && dto.minPrice > dto.maxPrice) {
-      throw new Error('Min price cannot be greater than max price');
-    }
-
     const page = dto.page || 1;
-    const limit = dto.limit || 20;
+    const limit = Math.min(dto.limit || 20, 100);
 
-    // Buscar produtos
-    const { products, total } = await this.productRepository.search({
-      vendorId: dto.vendorId,
-      brand: dto.brand,
-      minPrice: dto.minPrice,
-      maxPrice: dto.maxPrice,
-      volume: dto.volume,
-      isActive: true, // Apenas produtos ativos
-      limit,
-      offset: (page - 1) * limit,
-    });
+    // Buscar produtos (validação feita no repository)
+    const { products, total } = await this.productRepository.search(
+      {
+        vendorId: dto.vendorId,
+        brand: dto.brand,
+        minPrice: dto.minPrice,
+        maxPrice: dto.maxPrice,
+        volume: dto.volume,
+        state: dto.state,
+        city: dto.city,
+        neighborhood: dto.neighborhood,
+        isActive: true,
+      },
+      page,
+      limit
+    );
 
     // Mapear para DTO
-    const productDTOs = products.map((product) => ({
+    const productDTOs = products.map(({ product, vendor }) => ({
       id: product.id,
       vendorId: product.vendorId,
       brand: product.brand,
@@ -51,6 +43,16 @@ export class SearchProductsUseCase {
       stockQuantity: product.stockQuantity,
       description: product.description,
       imageUrl: product.imageUrl,
+      vendor: vendor ? {
+        id: vendor.id,
+        companyName: vendor.companyName,
+        type: vendor.type,
+        city: vendor.addressCity,
+        state: vendor.addressState,
+        neighborhood: vendor.addressStreet,
+        latitude: vendor.latitude,
+        longitude: vendor.longitude,
+      } : undefined,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
     }));

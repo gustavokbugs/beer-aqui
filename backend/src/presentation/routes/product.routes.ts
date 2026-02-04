@@ -19,6 +19,13 @@ const router = Router();
 router.post('/', authenticate, authorize(UserRole.VENDOR), ProductController.create);
 
 /**
+ * @route   GET /api/v1/products/suggestions
+ * @desc    Get brand suggestions for autocomplete
+ * @access  Public
+ */
+router.get('/suggestions', ProductController.getBrandSuggestions);
+
+/**
  * @route   GET /api/v1/products/search
  * @desc    Search products (cached)
  * @access  Public

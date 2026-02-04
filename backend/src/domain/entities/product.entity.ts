@@ -2,13 +2,16 @@ import { InvalidPriceError, InvalidVolumeError, InsufficientStockError } from '.
 
 // Volumes permitidos em ML
 export const ALLOWED_VOLUMES = [
+  250, // Garrafa pequena
   269, // Lata pequena
+  275, // Long neck pequena
   310, // Long neck pequena
   330, // Lata/long neck padrão
   350, // Lata média
   355, // Importadas
   473, // Lata grande
   500, // Garrafa média
+  550, // Garrafa grande
   600, // Garrafa
   1000, // Litro
   2000, // 2 litros

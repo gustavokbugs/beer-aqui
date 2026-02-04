@@ -32,6 +32,7 @@ import { ListVendorProductsUseCase } from '@/application/use-cases/product/list-
 import { GetProductDetailsUseCase } from '@/application/use-cases/product/get-product-details.use-case';
 import { SearchProductsUseCase } from '@/application/use-cases/product/search-products.use-case';
 import { SearchProductsByBrandUseCase } from '@/application/use-cases/product/search-products-by-brand.use-case';
+import { GetBrandSuggestionsUseCase } from '@/application/use-cases/product/get-brand-suggestions.use-case';
 
 // Use Cases - Ad
 import { CreateAdUseCase } from '@/application/use-cases/ad/create-ad.use-case';
@@ -81,6 +82,7 @@ export class DIContainer {
   private static getProductDetailsUseCase: GetProductDetailsUseCase;
   private static searchProductsUseCase: SearchProductsUseCase;
   private static searchProductsByBrandUseCase: SearchProductsByBrandUseCase;
+  private static getBrandSuggestionsUseCase: GetBrandSuggestionsUseCase;
 
   // Use Cases - Ad
   private static createAdUseCase: CreateAdUseCase;
@@ -354,6 +356,15 @@ export class DIContainer {
       );
     }
     return this.searchProductsByBrandUseCase;
+  }
+
+  static getGetBrandSuggestionsUseCase(): GetBrandSuggestionsUseCase {
+    if (!this.getBrandSuggestionsUseCase) {
+      this.getBrandSuggestionsUseCase = new GetBrandSuggestionsUseCase(
+        this.getProductRepository()
+      );
+    }
+    return this.getBrandSuggestionsUseCase;
   }
 
   // ========== Use Cases - Ad ==========
