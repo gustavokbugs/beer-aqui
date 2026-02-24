@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Container, Text, Spacing } from '@/components';
 import { theme } from '@/theme';
 
@@ -7,9 +8,12 @@ export const FavoritesScreen = () => {
   return (
     <Container safe padding>
       <View style={styles.header}>
-        <Text variant="h2" weight="bold">
-          Favoritos ⭐
-        </Text>
+        <View style={styles.titleContainer}>
+          <Ionicons name="star" size={28} color={theme.colors.primary.main} />
+          <Text variant="h2" weight="bold">
+            Favoritos
+          </Text>
+        </View>
         <Spacing size="xs" />
         <Text variant="body" color="secondary">
           Seus produtos favoritos
@@ -17,9 +21,7 @@ export const FavoritesScreen = () => {
       </View>
 
       <View style={styles.emptyState}>
-        <Text variant="h1" center>
-          ⭐
-        </Text>
+        <Ionicons name="star-outline" size={80} color={theme.colors.secondary.main} />
         <Spacing size="md" />
         <Text variant="h3" center color="secondary">
           Nenhum favorito ainda
@@ -36,6 +38,12 @@ export const FavoritesScreen = () => {
 const styles = StyleSheet.create({
   header: {
     marginBottom: theme.spacing.xl,
+  },
+
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
   },
 
   emptyState: {

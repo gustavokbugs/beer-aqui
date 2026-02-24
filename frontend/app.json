@@ -8,7 +8,14 @@
     "userInterfaceStyle": "light",
     "newArchEnabled": false,
     "plugins": [
-      "expo-dev-client"
+      "expo-dev-client",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Permite que $(PRODUCT_NAME) acesse sua localização para mostrar estabelecimentos próximos a você.",
+          "locationWhenInUsePermission": "Permite que $(PRODUCT_NAME) acesse sua localização para mostrar estabelecimentos próximos a você."
+        }
+      ]
     ],
     "splash": {
       "image": "./assets/splash-icon.png",
@@ -29,7 +36,16 @@
       },
       "package": "com.beeraqui.app",
       "edgeToEdgeEnabled": true,
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ],
+      "config": {
+        "googleMaps": {
+          "apiKey": ""
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
