@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import {
+import { View, StyleSheet, ScrollView } from 'react-native';import { Ionicons } from '@expo/vector-icons';import {
   Container,
   Text,
   Card,
@@ -65,19 +64,22 @@ export const ProfileScreen = () => {
           <Spacing size="md" />
 
           <View style={styles.menuItem}>
-            <Text variant="body">📍 Endereços</Text>
+            <Ionicons name="location-outline" size={20} color={theme.colors.text.primary} />
+            <Text variant="body" style={styles.menuText}>Endereços</Text>
           </View>
 
           <Spacing size="sm" />
 
           <View style={styles.menuItem}>
-            <Text variant="body">🔔 Notificações</Text>
+            <Ionicons name="notifications-outline" size={20} color={theme.colors.text.primary} />
+            <Text variant="body" style={styles.menuText}>Notificações</Text>
           </View>
 
           <Spacing size="sm" />
 
           <View style={styles.menuItem}>
-            <Text variant="body">🌐 Idioma</Text>
+            <Ionicons name="globe-outline" size={20} color={theme.colors.text.primary} />
+            <Text variant="body" style={styles.menuText}>Idioma</Text>
           </View>
 
           <Spacing size="sm" />
@@ -135,8 +137,15 @@ const styles = StyleSheet.create({
   },
 
   menuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
     paddingVertical: theme.spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.gray[100],
+  },
+
+  menuText: {
+    flex: 1,
   },
 });

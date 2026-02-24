@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { Ionicons } from '@expo/vector-icons';
 import {
   Container,
   Text,
@@ -57,9 +58,7 @@ export const LoginScreen = () => {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text variant="h1" weight="bold" color="primary" center>
-              🍺
-            </Text>
+            <Ionicons name="beer" size={80} color={theme.colors.primary.main} />
             <Spacing size="sm" />
             <Text variant="h1" weight="bold" center>
               {t('common:common.appName')}

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity, ScrollView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import {
   Container,
   Text,
@@ -145,12 +146,18 @@ export const SearchScreen = () => {
           <>
             <Spacing size="sm" />
             <View style={styles.vendorInfo}>
-              <Text variant="body" weight="semibold">
-                🏪 {item.vendor.companyName}
-              </Text>
-              <Text variant="caption" color="secondary">
-                📍 {item.vendor.city} - {item.vendor.state}
-              </Text>
+              <View style={styles.vendorRow}>
+                <Ionicons name="storefront-outline" size={14} color={theme.colors.secondary.main} />
+                <Text variant="body" weight="semibold" style={styles.vendorText}>
+                  {item.vendor.companyName}
+                </Text>
+              </View>
+              <View style={styles.vendorRow}>
+                <Ionicons name="location-outline" size={14} color={theme.colors.secondary.main} />
+                <Text variant="caption" color="secondary" style={styles.vendorText}>
+                  {item.vendor.city} - {item.vendor.state}
+                </Text>
+              </View>
               {item.vendor.neighborhood && (
                 <Text variant="caption" color="light">
                   {item.vendor.neighborhood}
@@ -178,9 +185,7 @@ export const SearchScreen = () => {
     if (!currentLocation) {
       return (
         <View style={styles.emptyState}>
-          <Text variant="h3" center color="secondary">
-            📍
-          </Text>
+          <Ionicons name="location-outline" size={60} color={theme.colors.secondary.main} />
           <Spacing size="md" />
           <Text variant="body" center color="secondary">
             Precisamos da sua localização para encontrar cervejas próximas
@@ -191,9 +196,7 @@ export const SearchScreen = () => {
 
     return (
       <View style={styles.emptyState}>
-        <Text variant="h3" center color="secondary">
-          🔍
-        </Text>
+        <Ionicons name="search-outline" size={60} color={theme.colors.secondary.main} />
         <Spacing size="md" />
         <Text variant="body" center color="secondary">
           Nenhum produto encontrado
@@ -221,9 +224,12 @@ export const SearchScreen = () => {
   return (
     <Container safe padding={false}>
       <View style={styles.header}>
-        <Text variant="h2" weight="bold">
-          Buscar Cervejas 🍺
-        </Text>
+        <View style={styles.titleContainer}>
+          <Ionicons name="beer" size={28} color={theme.colors.primary.main} />
+          <Text variant="h2" weight="bold" style={styles.titleText}>
+            Buscar Cervejas
+          </Text>
+        </View>
         <Spacing size="md" />
 
         <View style={styles.searchContainer}>
@@ -233,7 +239,7 @@ export const SearchScreen = () => {
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearch}
             onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-            rightIcon={<Text>🔍</Text>}
+            rightIcon={<Ionicons name="search" size={20} color={theme.colors.secondary.main} />}
           />
 
           {/* Autocomplete Suggestions */}
@@ -246,7 +252,10 @@ export const SearchScreen = () => {
                     style={styles.suggestionItem}
                     onPress={() => handleSuggestionPress(suggestion)}
                   >
-                    <Text variant="body">🍺 {suggestion}</Text>
+                    <View style={styles.suggestionContent}>
+                      <Ionicons name="beer-outline" size={18} color={theme.colors.secondary.main} />
+                      <Text variant="body" style={styles.suggestionText}>{suggestion}</Text>
+                    </View>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -262,7 +271,21 @@ export const SearchScreen = () => {
           size="sm"
           onPress={toggleLocationMode}
         >
-          {useLocationFilters ? '📍 Busca por Localiza\u00e7\u00e3o Ativa' : '🌍 Buscar em Outras Cidades'}
+          <View style={styles.filterButtonContent}>
+            <Ionicons 
+              name={useLocationFilters ? 'location' : 'globe-outline'} 
+              size={18} 
+              color={useLocationFilters ? '#FFFFFF' : theme.colors.primary.main} 
+            />
+            <Text 
+              variant="body" 
+              weight="medium"
+              color={useLocationFilters ? 'primary' : 'primary'}
+              style={styles.filterButtonText}
+            >
+              {useLocationFilters ? 'Busca por Localização Ativa' : 'Buscar em Outras Cidades'}
+            </Text>
+          </View>
         </Button>
 
         {/* Filtros de Localiza\u00e7\u00e3o */}
@@ -383,6 +406,47 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: theme.colors.gray[200],
     paddingTop: theme.spacing.sm,
+  },
+
+  vendorRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    marginBottom: theme.spacing.xs,
+  },
+
+  vendorText: {
+    flex: 1,
+  },
+
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+
+  titleText: {
+    flex: 1,
+  },
+
+  suggestionContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.sm,
+  },
+
+  suggestionText: {
+    flex: 1,
+  },
+
+  filterButtonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+  },
+
+  filterButtonText: {
+    marginLeft: theme.spacing.xs,
   },
 
   emptyState: {
