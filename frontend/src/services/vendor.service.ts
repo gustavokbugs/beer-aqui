@@ -15,6 +15,20 @@ export interface SearchNearbyResponse {
   limit: number;
 }
 
+export interface CreateVendorData {
+  companyName: string;
+  cnpj: string;
+  type: 'bar' | 'mercado' | 'distribuidora';
+  phone?: string;
+  addressStreet: string;
+  addressNumber: string;
+  addressCity: string;
+  addressState: string;
+  addressZip: string;
+  latitude: number;
+  longitude: number;
+}
+
 export const vendorService = {
   async searchNearby(params: SearchNearbyParams): Promise<SearchNearbyResponse> {
     // Convert radiusKm to radiusInMeters for backend
@@ -37,6 +51,16 @@ export const vendorService = {
 
   async getById(id: string): Promise<Vendor> {
     const response = await apiClient.get<Vendor>(`/vendors/${id}`);
+    return response.data;
+  },
+
+  async create(data: CreateVendorData): Promise<any> {
+    const response = await apiClient.post('/vendors', data);
+    return response.data;
+  },
+
+  async getMyProfile(): Promise<any> {
+    const response = await apiClient.get('/vendors/me');
     return response.data;
   },
 };

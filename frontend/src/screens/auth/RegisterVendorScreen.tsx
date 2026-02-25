@@ -43,7 +43,8 @@ export const RegisterVendorScreen = () => {
         role: 'VENDOR',
         isAdult: true,
       });
-      // Navigation happens automatically in RootNavigator
+      // Navigate to step 2 to complete vendor profile
+      navigation.navigate('RegisterVendorStep2');
     } catch (err) {
       // Error is handled by store
     } finally {
@@ -65,11 +66,11 @@ export const RegisterVendorScreen = () => {
             <Ionicons name="storefront" size={60} color={theme.colors.primary.main} />
             <Spacing size="md" />
             <Text variant="h2" weight="bold" center>
-              Cadastro de Vendedor
+              Cadastro de Vendedor - Etapa 1/2
             </Text>
             <Spacing size="xs" />
             <Text variant="body" color="secondary" center>
-              Anuncie seus produtos e aumente suas vendas
+              Primeiro, crie sua conta de acesso
             </Text>
           </View>
 
@@ -103,24 +104,6 @@ export const RegisterVendorScreen = () => {
 
             <Controller
               control={control}
-              name="companyName"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="Nome do estabelecimento"
-                  placeholder="Bar do João"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.companyName?.message}
-                  editable={!isSubmitting}
-                />
-              )}
-            />
-
-            <Spacing size="md" />
-
-            <Controller
-              control={control}
               name="email"
               render={({ field: { onChange, onBlur, value } }) => (
                 <Input
@@ -132,25 +115,6 @@ export const RegisterVendorScreen = () => {
                   onBlur={onBlur}
                   error={errors.email?.message}
                   autoCapitalize="none"
-                  editable={!isSubmitting}
-                />
-              )}
-            />
-
-            <Spacing size="md" />
-
-            <Controller
-              control={control}
-              name="cnpj"
-              render={({ field: { onChange, onBlur, value } }) => (
-                <Input
-                  label="CNPJ"
-                  placeholder="00.000.000/0000-00"
-                  value={value}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  error={errors.cnpj?.message}
-                  keyboardType="numeric"
                   editable={!isSubmitting}
                 />
               )}
@@ -200,7 +164,7 @@ export const RegisterVendorScreen = () => {
             <View style={styles.infoBox}>
               <Ionicons name="information-circle" size={24} color={theme.colors.info.main} />
               <Text variant="caption" color="secondary" style={styles.infoText}>
-                Após o cadastro, você precisará completar as informações do seu estabelecimento (endereço, tipo, etc.) para começar a anunciar produtos.
+                Na próxima etapa você preencherá os dados do seu estabelecimento (CNPJ, endereço, tipo).
               </Text>
             </View>
 
@@ -211,7 +175,7 @@ export const RegisterVendorScreen = () => {
               disabled={isSubmitting}
               loading={isSubmitting}
             >
-              Criar Conta de Vendedor
+              Continuar para Etapa 2
             </Button>
 
             <Spacing size="md" />

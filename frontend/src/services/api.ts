@@ -41,11 +41,28 @@ class ApiClient {
         return response;
       },
       async (error: AxiosError) => {
+        const originalRequest = error.config as any;
+        
         console.error('❌ Response error:', error.config?.method?.toUpperCase(), error.config?.url, error.message);
-        if (error.response?.status === 401) {
-          // Token expired - try to refresh
-          await this.handleTokenRefresh();
+        
+        if (error.response?.status === 401 && !originalRequest._retry) {
+          originalRequest._retry = true;
+          
+          try {
+            // Token expired - try to refresh
+            const newAccessToken = await this.handleTokenRefresh();
+            
+            // Retry original request with new token
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+            }
+            
+            return this.client(originalRequest);
+          } catch (refreshError) {
+            return Promise.reject(refreshError);
+          }
         }
+        
         return Promise.reject(error);
       }
     );

@@ -64,11 +64,15 @@ export class VendorController {
   static async searchNearby(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getSearchNearbyVendorsUseCase();
+      const radiusInMeters = req.query.radiusInMeters ? parseFloat(req.query.radiusInMeters as string) : 5000;
+      
       const result = await useCase.execute({
         latitude: parseFloat(req.query.latitude as string),
         longitude: parseFloat(req.query.longitude as string),
-        radiusKm: req.query.radiusKm ? parseFloat(req.query.radiusKm as string) : undefined,
+        radiusInMeters,
         type: req.query.type as any,
+        page: req.query.page ? parseInt(req.query.page as string) : 1,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
       });
 
       res.status(200).json(result);

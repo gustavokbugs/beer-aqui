@@ -40,8 +40,8 @@ export const productService = {
     return response.data.suggestions;
   },
 
-  async getById(id: string): Promise<Product> {
-    const response = await apiClient.get<Product>(`/products/${id}`);
+  async getById(id: string): Promise<{ product: Product; vendor: any }> {
+    const response = await apiClient.get<{ product: Product; vendor: any }>(`/products/${id}`);
     return response.data;
   },
 
@@ -56,6 +56,29 @@ export const productService = {
     const response = await apiClient.get<SearchProductsResponse>(
       `/products/vendors/${vendorId}/products`
     );
+    return response.data;
+  },
+
+  async getMyProducts(includeInactive = false): Promise<SearchProductsResponse> {
+    const response = await apiClient.get<SearchProductsResponse>('/products/my-products', {
+      params: { includeInactive },
+    });
+    return response.data;
+  },
+
+  async create(data: {
+    brand: string;
+    volume: number;
+    price: number;
+    stockQuantity: number;
+    description?: string;
+  }): Promise<Product> {
+    const response = await apiClient.post<Product>('/products', data);
+    return response.data;
+  },
+
+  async toggleStatus(productId: string): Promise<Product> {
+    const response = await apiClient.patch<Product>(`/products/${productId}/status`);
     return response.data;
   },
 };

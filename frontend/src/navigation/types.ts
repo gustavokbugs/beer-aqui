@@ -7,13 +7,15 @@ export type AuthStackParamList = {
   Register: undefined;
   RegisterClient: undefined;
   RegisterVendor: undefined;
+  RegisterVendorStep2: undefined;
   ForgotPassword: undefined;
 };
 
 // Main Tab Navigator
 export type MainTabParamList = {
-  Search: undefined;
+  Search: NavigatorScreenParams<SearchStackParamList>;
   Map: undefined;
+  Vendor?: NavigatorScreenParams<VendorStackParamList>;
   Favorites: undefined;
   Profile: undefined;
 };
@@ -23,6 +25,13 @@ export type SearchStackParamList = {
   SearchHome: undefined;
   ProductDetails: { productId: string };
   VendorDetails: { vendorId: string };
+};
+
+// Vendor Stack
+export type VendorStackParamList = {
+  ManageProducts: undefined;
+  AddProduct: undefined;
+  EditProduct: { productId: string };
 };
 
 // Map Stack

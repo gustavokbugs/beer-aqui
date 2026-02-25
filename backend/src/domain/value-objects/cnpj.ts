@@ -32,6 +32,12 @@ export class CNPJ {
       return false;
     }
 
+    // Em desenvolvimento/staging, aceitar CNPJs de teste (12345678000101-199)
+    const isDevOrStaging = process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'staging';
+    if (isDevOrStaging && cleanCNPJ.startsWith('12345678000')) {
+      return true;
+    }
+
     // Validação dos dígitos verificadores
     let size = cleanCNPJ.length - 2;
     let numbers = cleanCNPJ.substring(0, size);

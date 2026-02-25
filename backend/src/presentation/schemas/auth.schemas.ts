@@ -7,7 +7,7 @@ export const registerSchema = z.object({
     email: z.string().email(),
     password: z.string().min(8),
     role: z.enum([UserRole.CLIENT, UserRole.VENDOR]),
-    isAdult: z.boolean(),
+    isAdultConfirmed: z.boolean(),
   }),
 });
 

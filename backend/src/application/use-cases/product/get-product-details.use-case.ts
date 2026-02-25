@@ -36,17 +36,17 @@ export class GetProductDetailsUseCase {
     const productDTO: ProductResponseDTO = {
       id: product.id,
       vendorId: product.vendorId,
-      name: product.name,
       brand: product.brand,
-      volumeMl: product.volumeMl,
+      volume: product.volume,
       price: product.price,
-      stock: product.stock,
+      stockQuantity: product.stockQuantity,
       description: product.description,
       imageUrl: product.imageUrl,
       isActive: product.isActive,
       pricePerLiter: product.getPricePerLiter(),
-      volumeInLiters: product.volumeMl / 1000,
+      volumeInLiters: product.volume / 1000,
       createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
     };
 
     const vendorDTO: VendorResponseDTO = {
@@ -57,10 +57,13 @@ export class GetProductDetailsUseCase {
       type: vendor.type,
       phone: vendor.phone,
       address: vendor.address,
-      latitude: vendor.location.latitude,
-      longitude: vendor.location.longitude,
+      location: {
+        latitude: vendor.location.latitude,
+        longitude: vendor.location.longitude,
+      },
       isVerified: vendor.isVerified,
       createdAt: vendor.createdAt,
+      updatedAt: vendor.updatedAt,
     };
 
     return {

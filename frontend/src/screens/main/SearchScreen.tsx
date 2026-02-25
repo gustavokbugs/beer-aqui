@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import {
   Container,
   Text,
@@ -17,8 +19,12 @@ import { theme } from '@/theme';
 import { formatPrice, formatVolume, formatDistance, getProductVolume } from '@/utils';
 import { Product } from '@/types';
 import { productService } from '@/services/product.service';
+import { SearchStackParamList } from '@/navigation/types';
+
+type NavigationProp = StackNavigationProp<SearchStackParamList, 'SearchHome'>;
 
 export const SearchScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
   const [searchQuery, setSearchQuery] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -39,10 +45,8 @@ export const SearchScreen = () => {
   const { currentLocation, getCurrentLocation } = useLocationStore();
 
   useEffect(() => {
-    if (!useLocationFilters) {
-      loadInitialData();
-    }
-  }, [useLocationFilters]);
+    loadInitialData();
+  }, []);
 
   useEffect(() => {
     // Autocomplete: buscar sugest\u00f5es enquanto digita
@@ -121,33 +125,37 @@ export const SearchScreen = () => {
     const volumeMl = getProductVolume(item);
     
     return (
-      <Card variant="elevated" padding="md" style={styles.productCard}>
-        <View style={styles.productHeader}>
-          <Text variant="h3" weight="bold">
-            {item.brand}
-          </Text>
-          <Text variant="h3" weight="bold" color="primary">
-            {formatPrice(item.price)}
-          </Text>
-        </View>
+      <TouchableOpacity 
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('ProductDetails', { productId: item.id })}
+      >
+        <Card variant="elevated" padding="md" style={styles.productCard}>
+          <View style={styles.productHeader}>
+            <Text variant="h3" weight="bold">
+              {item.brand}
+            </Text>
+            <Text variant="h3" weight="bold" color="primary">
+              {formatPrice(item.price)}
+            </Text>
+          </View>
 
-        <Spacing size="sm" />
+          <Spacing size="sm" />
 
-        <View style={styles.productInfo}>
-          <Text variant="body" color="secondary">
-            {formatVolume(volumeMl)}
-          </Text>
-          <Text variant="body" color="secondary">
-            R$ {(parseFloat(item.price) / (volumeMl / 1000)).toFixed(2)}/L
-          </Text>
-        </View>
+          <View style={styles.productInfo}>
+            <Text variant="body" color="secondary">
+              {formatVolume(volumeMl)}
+            </Text>
+            <Text variant="body" color="secondary">
+              R$ {(parseFloat(item.price) / (volumeMl / 1000)).toFixed(2)}/L
+            </Text>
+          </View>
 
-        {item.vendor && (
-          <>
-            <Spacing size="sm" />
-            <View style={styles.vendorInfo}>
-              <View style={styles.vendorRow}>
-                <Ionicons name="storefront-outline" size={14} color={theme.colors.secondary.main} />
+          {item.vendor && (
+            <>
+              <Spacing size="sm" />
+              <View style={styles.vendorInfo}>
+                <View style={styles.vendorRow}>
+                  <Ionicons name="storefront-outline" size={14} color={theme.colors.secondary.main} />
                 <Text variant="body" weight="semibold" style={styles.vendorText}>
                   {item.vendor.companyName}
                 </Text>
@@ -175,7 +183,16 @@ export const SearchScreen = () => {
             </Text>
           </>
         )}
+
+        <Spacing size="xs" />
+        <View style={styles.tapHint}>
+          <Ionicons name="chevron-forward" size={16} color={theme.colors.primary.main} />
+          <Text variant="caption" color="primary">
+            Toque para ver detalhes
+          </Text>
+        </View>
       </Card>
+    </TouchableOpacity>
     );
   };
 
@@ -454,5 +471,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.xl,
+  },
+
+  tapHint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.xs,
+    justifyContent: 'flex-end',
   },
 });

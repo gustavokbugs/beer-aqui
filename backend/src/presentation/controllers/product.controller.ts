@@ -9,10 +9,21 @@ export class ProductController {
    */
   static async create(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
+      // Buscar vendor pelo userId
+      const vendorRepository = DIContainer.getVendorRepository();
+      const vendor = await vendorRepository.findByUserId(req.user!.userId);
+      
+      if (!vendor) {
+        res.status(400).json({ 
+          message: 'Vendor profile not found. Please complete your vendor profile first.' 
+        });
+        return;
+      }
+
       const useCase = DIContainer.getCreateProductUseCase();
       const result = await useCase.execute({
         ...req.body,
-        userId: req.user!.userId,
+        vendorId: vendor.id,
       });
 
       res.status(201).json(result);
@@ -147,6 +158,42 @@ export class ProductController {
       const useCase = DIContainer.getListVendorProductsUseCase();
       const result = await useCase.execute({
         vendorId: req.params.vendorId,
+        includeInactive: req.query.includeInactive === 'true',
+        page: req.query.page ? parseInt(req.query.page as string) : undefined,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
+      });
+
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  /**
+   * GET /api/v1/products/my-products
+   * Listar produtos do vendedor autenticado
+   */
+  static async listMyProducts(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      // Buscar vendor pelo userId
+      const vendorRepository = DIContainer.getVendorRepository();
+      const vendor = await vendorRepository.findByUserId(req.user!.userId);
+      
+      if (!vendor) {
+        // Se não tem vendor, retornar lista vazia em vez de erro
+        res.status(200).json({
+          products: [],
+          total: 0,
+          page: 1,
+          limit: 20,
+          totalPages: 0,
+        });
+        return;
+      }
+
+      const useCase = DIContainer.getListVendorProductsUseCase();
+      const result = await useCase.execute({
+        vendorId: vendor.id,
         includeInactive: req.query.includeInactive === 'true',
         page: req.query.page ? parseInt(req.query.page as string) : undefined,
         limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
