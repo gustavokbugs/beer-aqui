@@ -28,32 +28,88 @@ export class PrismaVendorRepository implements IVendorRepository {
     return this.toDomain(vendor);
   }
 
-  async findNearby(
-    location: Location,
-    radiusKm: number,
-    type?: VendorType
-  ): Promise<Vendor[]> {
-    // Query geoespacial usando PostGIS
-    // ST_DWithin usa metros, então convertemos km para metros
-    const radiusMeters = radiusKm * 1000;
+  async findByUserId(userId: string): Promise<Vendor | null> {
+    const vendor = await this.prisma.vendor.findFirst({
+      where: { userId },
+    });
 
-    const query = Prisma.sql`
-      SELECT * FROM "Vendor"
-      WHERE ST_DWithin(
-        location::geography,
-        ST_SetSRID(ST_MakePoint(${location.longitude}, ${location.latitude}), 4326)::geography,
-        ${radiusMeters}
-      )
-      ${type ? Prisma.sql`AND type = ${type}` : Prisma.empty}
-      ORDER BY ST_Distance(
-        location::geography,
-        ST_SetSRID(ST_MakePoint(${location.longitude}, ${location.latitude}), 4326)::geography
-      )
-    `;
+    if (!vendor) return null;
 
-    const vendors = await this.prisma.$queryRaw<any[]>(query);
+    return this.toDomain(vendor);
+  }
 
-    return vendors.map((v) => this.toDomain(v));
+  async findNearby(query: {
+    location: Location;
+    radiusInMeters: number;
+    type?: string;
+    isVerified?: boolean;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ vendors: Vendor[]; total: number }> {
+    const { location, radiusInMeters, type, isVerified, limit = 20, offset = 0 } = query;
+
+    // Usar fórmula Haversine para calcular distância
+    // Mais simples e rápida que PostGIS para este caso
+    const radiusInKm = radiusInMeters / 1000;
+    
+    // Buscar todos os vendors e filtrar por distância em memória
+    const whereClause: any = {};
+
+    if (type) {
+      whereClause.type = type;
+    }
+
+    if (isVerified !== undefined) {
+      whereClause.isVerified = isVerified;
+    }
+
+    const allVendors = await this.prisma.vendor.findMany({
+      where: whereClause,
+    });
+
+    // Calcular distância usando Haversine
+    const vendorsWithDistance = allVendors.map((vendor) => {
+      const distance = this.calculateDistance(
+        location.latitude,
+        location.longitude,
+        vendor.latitude,
+        vendor.longitude
+      );
+      return { vendor, distance };
+    });
+
+    // Filtrar por raio
+    const nearbyVendors = vendorsWithDistance
+      .filter((v) => v.distance <= radiusInKm)
+      .sort((a, b) => a.distance - b.distance);
+
+    const total = nearbyVendors.length;
+    const paginatedVendors = nearbyVendors.slice(offset, offset + limit);
+
+    return {
+      vendors: paginatedVendors.map((v) => this.toDomain(v.vendor)),
+      total,
+    };
+  }
+
+  // Fórmula Haversine para calcular distância entre dois pontos
+  private calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    const R = 6371; // Raio da Terra em km
+    const dLat = this.deg2rad(lat2 - lat1);
+    const dLon = this.deg2rad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(this.deg2rad(lat1)) *
+        Math.cos(this.deg2rad(lat2)) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const distance = R * c; // Distância em km
+    return distance;
+  }
+
+  private deg2rad(deg: number): number {
+    return deg * (Math.PI / 180);
   }
 
   async save(vendor: Vendor): Promise<Vendor> {
@@ -64,8 +120,13 @@ export class PrismaVendorRepository implements IVendorRepository {
         companyName: vendor.companyName,
         cnpj: vendor.cnpj.getValue(),
         type: vendor.type,
-        location: Prisma.sql`ST_SetSRID(ST_MakePoint(${vendor.location.longitude}, ${vendor.location.latitude}), 4326)`,
-        address: vendor.address,
+        latitude: vendor.location.latitude,
+        longitude: vendor.location.longitude,
+        addressStreet: vendor.address.street,
+        addressNumber: vendor.address.number,
+        addressCity: vendor.address.city,
+        addressState: vendor.address.state,
+        addressZip: vendor.address.zipCode,
         phone: vendor.phone ?? null,
         isVerified: vendor.isVerified,
         createdAt: vendor.createdAt,
@@ -83,8 +144,13 @@ export class PrismaVendorRepository implements IVendorRepository {
         companyName: vendor.companyName,
         cnpj: vendor.cnpj.getValue(),
         type: vendor.type,
-        location: Prisma.sql`ST_SetSRID(ST_MakePoint(${vendor.location.longitude}, ${vendor.location.latitude}), 4326)`,
-        address: vendor.address,
+        latitude: vendor.location.latitude,
+        longitude: vendor.location.longitude,
+        addressStreet: vendor.address.street,
+        addressNumber: vendor.address.number,
+        addressCity: vendor.address.city,
+        addressState: vendor.address.state,
+        addressZip: vendor.address.zipCode,
         phone: vendor.phone ?? null,
         isVerified: vendor.isVerified,
         updatedAt: new Date(),
@@ -95,43 +161,24 @@ export class PrismaVendorRepository implements IVendorRepository {
   }
 
   private toDomain(raw: any): Vendor {
-    // Extrair latitude e longitude do PostGIS geometry
-    // O formato retornado pelo PostGIS é um objeto ou string que precisamos parsear
-    let latitude: number;
-    let longitude: number;
-
-    if (typeof raw.location === 'string') {
-      // Parse do formato WKT: "POINT(longitude latitude)"
-      const matches = raw.location.match(/POINT\(([^ ]+) ([^ ]+)\)/);
-      if (matches) {
-        longitude = parseFloat(matches[1]);
-        latitude = parseFloat(matches[2]);
-      } else {
-        // Fallback para coordenadas padrão
-        latitude = 0;
-        longitude = 0;
-      }
-    } else if (raw.location && typeof raw.location === 'object') {
-      // Se vier como objeto com coordenadas
-      latitude = raw.location.coordinates?.[1] ?? raw.location.y ?? 0;
-      longitude = raw.location.coordinates?.[0] ?? raw.location.x ?? 0;
-    } else {
-      latitude = 0;
-      longitude = 0;
-    }
-
     return Vendor.reconstitute({
       id: raw.id,
-      userId: raw.userId,
-      companyName: raw.companyName,
+      userId: raw.userId ?? raw.user_id,
+      companyName: raw.companyName ?? raw.company_name,
       cnpj: CNPJ.create(raw.cnpj),
       type: raw.type as VendorType,
-      location: Location.create(latitude, longitude),
-      address: raw.address,
+      location: Location.create(raw.latitude, raw.longitude),
+      address: {
+        street: raw.addressStreet ?? raw.address_street,
+        number: raw.addressNumber ?? raw.address_number,
+        city: raw.addressCity ?? raw.address_city,
+        state: raw.addressState ?? raw.address_state,
+        zipCode: raw.addressZip ?? raw.address_zip,
+      },
       phone: raw.phone ?? undefined,
-      isVerified: raw.isVerified,
-      createdAt: raw.createdAt,
-      updatedAt: raw.updatedAt,
+      isVerified: raw.isVerified ?? raw.is_verified,
+      createdAt: raw.createdAt ?? raw.created_at,
+      updatedAt: raw.updatedAt ?? raw.updated_at,
     });
   }
 }

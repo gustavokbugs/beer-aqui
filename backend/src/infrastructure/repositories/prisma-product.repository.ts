@@ -247,7 +247,7 @@ export class PrismaProductRepository implements IProductRepository {
       vendorId: raw.vendorId,
       brand: raw.brand,
       volume: raw.volume,
-      price: raw.price,
+      price: Number(raw.price),
       stockQuantity: raw.stockQuantity,
       description: raw.description ?? undefined,
       imageUrl: raw.imageUrl ?? undefined,

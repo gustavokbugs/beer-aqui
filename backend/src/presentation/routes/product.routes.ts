@@ -26,6 +26,13 @@ router.post('/', authenticate, authorize(UserRole.VENDOR), ProductController.cre
 router.get('/suggestions', ProductController.getBrandSuggestions);
 
 /**
+ * @route   GET /api/v1/products/my-products
+ * @desc    List authenticated vendor's products
+ * @access  Private (VENDOR role)
+ */
+router.get('/my-products', authenticate, authorize(UserRole.VENDOR), ProductController.listMyProducts);
+
+/**
  * @route   GET /api/v1/products/search
  * @desc    Search products (cached)
  * @access  Public

@@ -1,13 +1,55 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { MainTabParamList } from './types';
+import { createStackNavigator } from '@react-navigation/stack';
+import { Ionicons } from '@expo/vector-icons';
+import { MainTabParamList, SearchStackParamList, VendorStackParamList } from './types';
 import { theme } from '@/theme';
-import { SearchScreen, MapScreen, FavoritesScreen, ProfileScreen } from '@/screens';
+import { 
+  SearchScreen, 
+  ProductDetailsScreen, 
+  MapScreen, 
+  FavoritesScreen, 
+  ProfileScreen,
+  ManageProductsScreen,
+  AddProductScreen,
+} from '@/screens';
 import { Text } from '@/components';
+import { useAuthStore } from '@/store/auth.store';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
+const SearchStack = createStackNavigator<SearchStackParamList>();
+const VendorStack = createStackNavigator<VendorStackParamList>();
+
+const SearchNavigator = () => {
+  return (
+    <SearchStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <SearchStack.Screen name="SearchHome" component={SearchScreen} />
+      <SearchStack.Screen name="ProductDetails" component={ProductDetailsScreen} />
+    </SearchStack.Navigator>
+  );
+};
+
+const VendorNavigator = () => {
+  return (
+    <VendorStack.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <VendorStack.Screen name="ManageProducts" component={ManageProductsScreen} />
+      <VendorStack.Screen name="AddProduct" component={AddProductScreen} />
+    </VendorStack.Navigator>
+  );
+};
 
 export const MainNavigator = () => {
+  const { user } = useAuthStore();
+  const isVendor = user?.role === 'VENDOR';
+
   return (
     <Tab.Navigator
       screenOptions={{
@@ -29,7 +71,7 @@ export const MainNavigator = () => {
     >
       <Tab.Screen
         name="Search"
-        component={SearchScreen}
+        component={SearchNavigator}
         options={{
           headerShown: false,
           tabBarLabel: 'Buscar',
@@ -46,6 +88,18 @@ export const MainNavigator = () => {
           tabBarIcon: () => <Text>🗺️</Text>,
         }}
       />
+
+      {isVendor && (
+        <Tab.Screen
+          name="Vendor"
+          component={VendorNavigator}
+          options={{
+            headerShown: false,
+            tabBarLabel: 'Produtos',
+            tabBarIcon: ({ color }) => <Ionicons name="add-circle" size={24} color={color} />,
+          }}
+        />
+      )}
 
       <Tab.Screen
         name="Favorites"

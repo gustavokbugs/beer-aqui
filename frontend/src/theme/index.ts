@@ -41,6 +41,8 @@ export const colors = {
     800: '#1F2937',
     900: '#111827',
   },
+  white: '#FFFFFF',
+  black: '#000000',
   background: {
     primary: '#FFFFFF',
     secondary: '#F9FAFB',

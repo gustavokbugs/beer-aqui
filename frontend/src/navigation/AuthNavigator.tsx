@@ -6,7 +6,8 @@ import {
   LoginScreen, 
   RegisterScreen,
   RegisterClientScreen,
-  RegisterVendorScreen 
+  RegisterVendorScreen,
+  RegisterVendorStep2Screen 
 } from '@/screens';
 
 const Stack = createStackNavigator<AuthStackParamList>();
@@ -42,6 +43,11 @@ export const AuthNavigator = () => {
       <Stack.Screen 
         name="RegisterVendor" 
         component={RegisterVendorScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen 
+        name="RegisterVendorStep2" 
+        component={RegisterVendorStep2Screen}
         options={{ headerShown: false }}
       />
     </Stack.Navigator>
