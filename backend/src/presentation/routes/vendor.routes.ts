@@ -1,9 +1,11 @@
 import { Router } from 'express';
 import { VendorController } from '../controllers/vendor.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
+import { validate } from '../middlewares/validation.middleware';
 import { UserRole } from '@/domain/entities/user.entity';
 import { cacheMiddleware, nearbyVendorsCacheKey } from '../middlewares/cache.middleware';
 import { CacheTTL } from '@/infrastructure/cache/cache.helpers';
+import { createVendorSchema, updateVendorSchema } from '../schemas/vendor.schemas';
 
 const router = Router();
 
@@ -12,7 +14,7 @@ const router = Router();
  * @desc    Create new vendor
  * @access  Private (VENDOR role)
  */
-router.post('/', authenticate, authorize(UserRole.VENDOR), VendorController.create);
+router.post('/', authenticate, authorize(UserRole.VENDOR), validate(createVendorSchema), VendorController.create);
 
 /**
  * @route   GET /api/v1/vendors/nearby
@@ -41,7 +43,7 @@ router.get(
  * @desc    Update vendor
  * @access  Private (Own vendor only)
  */
-router.put('/:id', authenticate, authorize(UserRole.VENDOR), VendorController.update);
+router.put('/:id', authenticate, authorize(UserRole.VENDOR), validate(updateVendorSchema), VendorController.update);
 
 /**
  * @route   POST /api/v1/vendors/:id/verify

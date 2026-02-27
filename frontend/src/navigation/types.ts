@@ -7,7 +7,11 @@ export type AuthStackParamList = {
   Register: undefined;
   RegisterClient: undefined;
   RegisterVendor: undefined;
-  RegisterVendorStep2: undefined;
+  RegisterVendorStep2: {
+    name: string;
+    email: string;
+    password: string;
+  };
   ForgotPassword: undefined;
 };
 

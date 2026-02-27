@@ -13,7 +13,7 @@ import {
   ErrorMessage,
 } from '@/components';
 import { useForm } from '@/hooks';
-import { registerVendorSchema, RegisterVendorFormData } from '@/utils';
+import { registerVendorStep1Schema, RegisterVendorStep1FormData } from '@/utils';
 import { useAuthStore } from '@/store/auth.store';
 import { theme } from '@/theme';
 import { AuthStackParamList } from '@/navigation/types';
@@ -29,23 +29,24 @@ export const RegisterVendorScreen = () => {
     control,
     handleSubmit,
     formState: { errors },
-  } = useForm<RegisterVendorFormData>(registerVendorSchema);
+  } = useForm<RegisterVendorStep1FormData>(registerVendorStep1Schema);
 
-  const onSubmit = async (data: RegisterVendorFormData) => {
+  const onSubmit = async (data: RegisterVendorStep1FormData) => {
+    console.log('RegisterVendor - Form submitted with data:', data);
     setIsSubmitting(true);
     clearError();
 
     try {
-      await register({
+      // Don't register yet - just navigate to step 2 with the data
+      // Registration will happen after completing vendor profile
+      console.log('RegisterVendor - Navigating to step 2');
+      navigation.navigate('RegisterVendorStep2', {
         name: data.name,
         email: data.email,
         password: data.password,
-        role: 'VENDOR',
-        isAdult: true,
       });
-      // Navigate to step 2 to complete vendor profile
-      navigation.navigate('RegisterVendorStep2');
     } catch (err) {
+      console.error('RegisterVendor - Error during navigation:', err);
       // Error is handled by store
     } finally {
       setIsSubmitting(false);
@@ -134,7 +135,7 @@ export const RegisterVendorScreen = () => {
                   onChangeText={onChange}
                   onBlur={onBlur}
                   error={errors.password?.message}
-                  helperText="Mínimo de 6 caracteres"
+                  helperText="Mínimo de 8 caracteres"
                   editable={!isSubmitting}
                 />
               )}

@@ -160,6 +160,19 @@ export class PrismaVendorRepository implements IVendorRepository {
     return this.toDomain(updated);
   }
 
+  async delete(id: string): Promise<void> {
+    await this.prisma.vendor.delete({
+      where: { id },
+    });
+  }
+
+  async existsByCNPJ(cnpj: CNPJ): Promise<boolean> {
+    const count = await this.prisma.vendor.count({
+      where: { cnpj: cnpj.getValue() },
+    });
+    return count > 0;
+  }
+
   private toDomain(raw: any): Vendor {
     return Vendor.reconstitute({
       id: raw.id,

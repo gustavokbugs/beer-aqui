@@ -132,7 +132,7 @@ export const RegisterScreen = () => {
                   onChangeText={onChange}
                   onBlur={onBlur}
                   error={errors.password?.message}
-                  helperText="Mínimo de 6 caracteres"
+                  helperText="Mínimo de 8 caracteres"
                   editable={!isSubmitting}
                 />
               )}

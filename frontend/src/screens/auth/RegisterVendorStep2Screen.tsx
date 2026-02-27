@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Alert, ActivityIndicator } from 'react-native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import {
   Container,
@@ -13,9 +13,12 @@ import {
 import { theme } from '@/theme';
 import { vendorService } from '@/services/vendor.service';
 import { useLocationStore } from '@/store/location.store';
+import { useAuthStore } from '@/store/auth.store';
 import { AuthStackParamList } from '@/navigation/types';
+import { formatCNPJ, validateCNPJ } from '@/utils/formatters';
 
 type NavigationProp = StackNavigationProp<AuthStackParamList, 'RegisterVendorStep2'>;
+type RoutePropType = RouteProp<AuthStackParamList, 'RegisterVendorStep2'>;
 
 const VENDOR_TYPES = [
   { label: 'Bar', value: 'bar' },
@@ -25,7 +28,14 @@ const VENDOR_TYPES = [
 
 export const RegisterVendorStep2Screen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { currentLocation } = useLocationStore();
+  const route = useRoute<RoutePropType>();
+  const { register } = useAuthStore();
+  const { 
+    currentLocation, 
+    getCurrentLocation, 
+    isLoading: locationLoading,
+    error: locationError,
+  } = useLocationStore();
   const [isLoading, setIsLoading] = useState(false);
 
   const [companyName, setCompanyName] = useState('');
@@ -37,17 +47,39 @@ export const RegisterVendorStep2Screen = () => {
   const [addressCity, setAddressCity] = useState('');
   const [addressState, setAddressState] = useState('');
   const [addressZip, setAddressZip] = useState('');
+  const [cnpjError, setCnpjError] = useState<string | null>(null);
+  const [isLoadingCep, setIsLoadingCep] = useState(false);
+  const [addressNeighborhood, setAddressNeighborhood] = useState('');
 
-  const formatCNPJ = (text: string) => {
-    const numbers = text.replace(/\D/g, '');
-    if (numbers.length <= 14) {
-      return numbers
-        .replace(/(\d{2})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1.$2')
-        .replace(/(\d{3})(\d)/, '$1/$2')
-        .replace(/(\d{4})(\d)/, '$1-$2');
+  // Request location when screen loads
+  useEffect(() => {
+    getCurrentLocation();
+  }, []);
+
+  // Validate CNPJ when it changes
+  useEffect(() => {
+    if (cnpj.length === 0) {
+      setCnpjError(null);
+      return;
     }
-    return cnpj;
+    
+    const cleanCnpj = cnpj.replace(/\D/g, '');
+    
+    if (cleanCnpj.length < 14) {
+      setCnpjError(null); // Don't show error while typing
+      return;
+    }
+    
+    if (!validateCNPJ(cnpj)) {
+      setCnpjError('CNPJ inválido');
+    } else {
+      setCnpjError(null);
+    }
+  }, [cnpj]);
+
+  const handleCnpjChange = (text: string) => {
+    const formatted = formatCNPJ(text);
+    setCnpj(formatted);
   };
 
   const formatPhone = (text: string) => {
@@ -60,10 +92,72 @@ export const RegisterVendorStep2Screen = () => {
     return phone;
   };
 
+  const formatCep = (text: string) => {
+    const numbers = text.replace(/\D/g, '');
+    if (numbers.length <= 8) {
+      return numbers.replace(/(\d{5})(\d)/, '$1-$2');
+    }
+    return addressZip;
+  };
+
+  const handleCepChange = async (text: string) => {
+    const formatted = formatCep(text);
+    setAddressZip(formatted);
+
+    const cleanCep = text.replace(/\D/g, '');
+    
+    // Limpa campos se CEP estiver sendo editado
+    if (cleanCep.length < 8 && cleanCep.length > 0) {
+      // Não limpa para não apagar dados enquanto digita
+    } else if (cleanCep.length === 0) {
+      // Limpa todos os campos se o CEP for apagado
+      setAddressStreet('');
+      setAddressCity('');
+      setAddressState('');
+      setAddressNeighborhood('');
+    }
+    
+    // Busca CEP quando tiver 8 dígitos
+    if (cleanCep.length === 8) {
+      setIsLoadingCep(true);
+      try {
+        const response = await fetch(`https://viacep.com.br/ws/${cleanCep}/json/`);
+        const data = await response.json();
+
+        if (!data.erro) {
+          setAddressStreet(data.logradouro || '');
+          setAddressCity(data.localidade || '');
+          setAddressState(data.uf || '');
+          setAddressNeighborhood(data.bairro || '');
+        } else {
+          Alert.alert('CEP não encontrado', 'Por favor, verifique o CEP digitado ou preencha manualmente.');
+        }
+      } catch (error) {
+        console.error('Erro ao buscar CEP:', error);
+        Alert.alert('Erro', 'Não foi possível buscar o CEP. Você pode preencher manualmente.');
+      } finally {
+        setIsLoadingCep(false);
+      }
+    }
+  };
+
   const handleSubmit = async () => {
     // Validações básicas
-    if (!companyName || !cnpj || !addressStreet || !addressNumber || !addressCity || !addressState) {
+    if (!companyName || !cnpj || !addressZip || !addressStreet || !addressNumber || !addressCity || !addressState) {
       Alert.alert('Atenção', 'Por favor, preencha todos os campos obrigatórios');
+      return;
+    }
+
+    // Validate CNPJ
+    if (!validateCNPJ(cnpj)) {
+      Alert.alert('Erro', 'Por favor, insira um CNPJ válido');
+      return;
+    }
+
+    // Validate CEP (must have 8 digits)
+    const cleanCep = addressZip.replace(/\D/g, '');
+    if (cleanCep.length !== 8) {
+      Alert.alert('Erro', 'Por favor, insira um CEP válido com 8 dígitos');
       return;
     }
 
@@ -72,30 +166,71 @@ export const RegisterVendorStep2Screen = () => {
       return;
     }
 
+    // Verifica se recebeu os dados da etapa 1
+    const { name, email, password } = route.params;
+    if (!name || !email || !password) {
+      Alert.alert('Erro', 'Dados da etapa anterior não encontrados. Por favor, volte e preencha novamente.');
+      navigation.goBack();
+      return;
+    }
+
     setIsLoading(true);
     try {
-      await vendorService.create({
+      // First, register the user account
+      console.log('Starting registration with:', { name, email, role: 'VENDOR' });
+      await register({
+        name,
+        email,
+        password,
+        role: 'VENDOR',
+        isAdult: true,
+      });
+
+      console.log('User registered successfully, creating vendor profile...');
+
+      // After successful registration, create vendor profile
+      const vendorData = {
         companyName,
         cnpj: cnpj.replace(/\D/g, ''),
         type,
-        phone: phone.replace(/\D/g, ''),
+        phone: phone ? phone.replace(/\D/g, '') : undefined,
         addressStreet,
         addressNumber,
         addressCity,
-        addressState,
-        addressZip: addressZip || '00000-000',
+        addressState: addressState.toUpperCase().substring(0, 2),
+        addressZip: addressZip.replace(/\D/g, ''),
         latitude: currentLocation.latitude,
         longitude: currentLocation.longitude,
-      });
+      };
+      
+      console.log('Vendor data to send:', JSON.stringify(vendorData, null, 2));
+      
+      await vendorService.create(vendorData);
 
       Alert.alert(
         'Sucesso!', 
         'Seu perfil de vendedor foi criado com sucesso. Agora você pode começar a cadastrar seus produtos!',
         [{ text: 'OK' }]
       );
-      // Navigation happens automatically in RootNavigator after success
+      // Navigation happens automatically in RootNavigator after successful registration
     } catch (err: any) {
-      Alert.alert('Erro', err.response?.data?.message || err.message || 'Erro ao criar perfil');
+      console.error('Error in vendor registration:', err);
+      console.error('Error response:', err.response?.data);
+      console.error('Error status:', err.response?.status);
+      
+      let errorMessage = 'Erro ao criar perfil';
+      
+      if (err.response?.data?.details) {
+        // Se houver detalhes de validação, mostre-os
+        const details = err.response.data.details.map((d: any) => `${d.field}: ${d.message}`).join('\n');
+        errorMessage = `Dados inválidos:\n${details}`;
+      } else if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.message) {
+        errorMessage = err.message;
+      }
+      
+      Alert.alert('Erro', errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -103,11 +238,11 @@ export const RegisterVendorStep2Screen = () => {
 
   const handleSkip = () => {
     Alert.alert(
-      'Completar mais tarde',
-      'Você poderá completar seu perfil depois na aba de Produtos. Sem o perfil completo, não será possível cadastrar produtos.',
+      'Cancelar cadastro?',
+      'Se você voltar agora, precisará preencher os dados novamente.',
       [
-        { text: 'Voltar', style: 'cancel' },
-        { text: 'Pular', onPress: () => {} }, // Will navigate automatically
+        { text: 'Continuar aqui', style: 'cancel' },
+        { text: 'Voltar', onPress: () => navigation.goBack() },
       ]
     );
   };
@@ -151,9 +286,10 @@ export const RegisterVendorStep2Screen = () => {
             label="CNPJ *"
             placeholder="00.000.000/0000-00"
             value={cnpj}
-            onChangeText={(text) => setCnpj(formatCNPJ(text))}
+            onChangeText={handleCnpjChange}
             keyboardType="number-pad"
             maxLength={18}
+            error={cnpjError || undefined}
           />
 
           <Spacing size="md" />
@@ -204,11 +340,30 @@ export const RegisterVendorStep2Screen = () => {
           <Spacing size="md" />
 
           <Input
+            label="CEP *"
+            placeholder="00000-000"
+            value={addressZip}
+            onChangeText={handleCepChange}
+            keyboardType="number-pad"
+            maxLength={9}
+            helperText={isLoadingCep ? "🔍 Buscando endereço..." : "Digite o CEP para buscar automaticamente"}
+          />
+
+          {isLoadingCep && (
+            <View style={{ alignItems: 'center', marginTop: 8 }}>
+              <ActivityIndicator size="small" color={theme.colors.primary.main} />
+            </View>
+          )}
+
+          <Spacing size="md" />
+
+          <Input
             label="Rua *"
             placeholder="Rua Principal"
             value={addressStreet}
             onChangeText={setAddressStreet}
             autoCapitalize="words"
+            editable={!isLoadingCep}
           />
 
           <Spacing size="md" />
@@ -224,11 +379,23 @@ export const RegisterVendorStep2Screen = () => {
           <Spacing size="md" />
 
           <Input
+            label="Bairro"
+            placeholder="Centro"
+            value={addressNeighborhood}
+            onChangeText={setAddressNeighborhood}
+            autoCapitalize="words"
+            editable={!isLoadingCep}
+          />
+
+          <Spacing size="md" />
+
+          <Input
             label="Cidade *"
             placeholder="Santa Cruz do Sul"
             value={addressCity}
             onChangeText={setAddressCity}
             autoCapitalize="words"
+            editable={!isLoadingCep}
           />
 
           <Spacing size="md" />
@@ -240,17 +407,7 @@ export const RegisterVendorStep2Screen = () => {
             onChangeText={(text) => setAddressState(text.toUpperCase())}
             maxLength={2}
             autoCapitalize="characters"
-          />
-
-          <Spacing size="md" />
-
-          <Input
-            label="CEP"
-            placeholder="00000-000"
-            value={addressZip}
-            onChangeText={setAddressZip}
-            keyboardType="number-pad"
-            maxLength={9}
+            editable={!isLoadingCep}
           />
 
           <Spacing size="sm" />
@@ -260,23 +417,69 @@ export const RegisterVendorStep2Screen = () => {
           </Text>
         </Card>
 
+        <Spacing size="lg" />
+
+        <Card variant="elevated" padding="md" style={styles.infoCard}>
+          <View style={styles.infoRow}>
+            <Text variant="caption" color="secondary">
+              📍 Sua localização é usada para que clientes próximos possam encontrar seu estabelecimento no mapa.
+              {currentLocation && ' Você pode ajustar o endereço acima se necessário.'}
+            </Text>
+          </View>
+        </Card>
+
         <Spacing size="xl" />
+
+        {locationLoading && (
+          <>
+            <Text variant="caption" color="secondary" center>
+              🌍 Obtendo sua localização...
+            </Text>
+            <Spacing size="md" />
+          </>
+        )}
+
+        {currentLocation && !locationLoading && (
+          <>
+            <Text variant="caption" color="secondary" center style={{ color: theme.colors.success.main }}>
+              ✓ Localização obtida com sucesso
+            </Text>
+            <Spacing size="md" />
+          </>
+        )}
+
+        {!currentLocation && !locationLoading && (
+          <>
+            <Text variant="caption" color="error" center>
+              {locationError || 'Não foi possível obter sua localização'}
+            </Text>
+            <Spacing size="sm" />
+            <Button
+              variant="outline"
+              size="sm"
+              onPress={getCurrentLocation}
+            >
+              Tentar novamente
+            </Button>
+            <Spacing size="md" />
+          </>
+        )}
 
         <Button
           variant="primary"
           size="lg"
           onPress={handleSubmit}
           loading={isLoading}
-          disabled={!currentLocation}
+          disabled={!currentLocation || isLoading || !!cnpjError}
         >
           Concluir Cadastro
         </Button>
 
-        {!currentLocation && (
+        {cnpjError && cnpj.replace(/\D/g, '').length === 14 && (
           <>
-            <Spacing size="md" />
+            <Spacing size="sm" />
             <Text variant="caption" color="error" center>
-              Aguardando localização...
+              ⚠️ {cnpjError}
             </Text>
           </>
         )}
@@ -290,7 +493,7 @@ export const RegisterVendorStep2Screen = () => {
           disabled={isLoading}
         >
           <Text variant="body" color="secondary">
-            Completar depois
+            Voltar à etapa anterior
           </Text>
         </Button>
 
@@ -315,5 +518,14 @@ const styles = StyleSheet.create({
   typeButton: {
     flex: 0,
     minWidth: '30%',
+  },
+  infoCard: {
+    backgroundColor: '#E3F2FD',
+    borderWidth: 1,
+    borderColor: theme.colors.info.main,
+  },
+  infoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
