@@ -4,6 +4,7 @@ import { API_CONFIG, STORAGE_KEYS } from '@/constants';
 
 class ApiClient {
   private client: AxiosInstance;
+  private tokenPromise: Promise<string | null> | null = null;
 
   constructor() {
     this.client = axios.create({
@@ -17,12 +18,30 @@ class ApiClient {
     this.setupInterceptors();
   }
 
+  private async getToken(): Promise<string | null> {
+    // Se já existe uma Promise em andamento, aguarda ela
+    if (this.tokenPromise) {
+      return this.tokenPromise;
+    }
+
+    // Cria uma nova Promise para buscar o token
+    this.tokenPromise = AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    
+    try {
+      const token = await this.tokenPromise;
+      return token;
+    } finally {
+      // Limpa a Promise após completar
+      this.tokenPromise = null;
+    }
+  }
+
   private setupInterceptors() {
     // Request interceptor - add auth token
     this.client.interceptors.request.use(
       async config => {
         console.log('📤 API Request:', config.method?.toUpperCase(), config.url);
-        const token = await AsyncStorage.getItem(STORAGE_KEYS.AUTH_TOKEN);
+        const token = await this.getToken();
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -43,14 +62,16 @@ class ApiClient {
       async (error: AxiosError) => {
         const originalRequest = error.config as any;
         
-        console.error('❌ Response error:', error.config?.method?.toUpperCase(), error.config?.url, error.message);
+        console.error('❌ Response error:', error.config?.method?.toUpperCase(), error.config?.url, error.response?.status, error.message);
         
         if (error.response?.status === 401 && !originalRequest._retry) {
+          console.log('🔄 Attempting token refresh...');
           originalRequest._retry = true;
           
           try {
             // Token expired - try to refresh
             const newAccessToken = await this.handleTokenRefresh();
+            console.log('✅ Token refreshed successfully');
             
             // Retry original request with new token
             if (originalRequest.headers) {
@@ -59,6 +80,7 @@ class ApiClient {
             
             return this.client(originalRequest);
           } catch (refreshError) {
+            console.error('❌ Token refresh failed:', refreshError);
             return Promise.reject(refreshError);
           }
         }

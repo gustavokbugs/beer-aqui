@@ -126,7 +126,7 @@ export class PrismaVendorRepository implements IVendorRepository {
         addressNumber: vendor.address.number,
         addressCity: vendor.address.city,
         addressState: vendor.address.state,
-        addressZip: vendor.address.zipCode,
+        addressZip: vendor.address.zip,
         phone: vendor.phone ?? null,
         isVerified: vendor.isVerified,
         createdAt: vendor.createdAt,
@@ -150,7 +150,7 @@ export class PrismaVendorRepository implements IVendorRepository {
         addressNumber: vendor.address.number,
         addressCity: vendor.address.city,
         addressState: vendor.address.state,
-        addressZip: vendor.address.zipCode,
+        addressZip: vendor.address.zip,
         phone: vendor.phone ?? null,
         isVerified: vendor.isVerified,
         updatedAt: new Date(),
@@ -158,6 +158,19 @@ export class PrismaVendorRepository implements IVendorRepository {
     });
 
     return this.toDomain(updated);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.prisma.vendor.delete({
+      where: { id },
+    });
+  }
+
+  async existsByCNPJ(cnpj: CNPJ): Promise<boolean> {
+    const count = await this.prisma.vendor.count({
+      where: { cnpj: cnpj.getValue() },
+    });
+    return count > 0;
   }
 
   private toDomain(raw: any): Vendor {
@@ -173,7 +186,7 @@ export class PrismaVendorRepository implements IVendorRepository {
         number: raw.addressNumber ?? raw.address_number,
         city: raw.addressCity ?? raw.address_city,
         state: raw.addressState ?? raw.address_state,
-        zipCode: raw.addressZip ?? raw.address_zip,
+        zip: raw.addressZip ?? raw.address_zip,
       },
       phone: raw.phone ?? undefined,
       isVerified: raw.isVerified ?? raw.is_verified,

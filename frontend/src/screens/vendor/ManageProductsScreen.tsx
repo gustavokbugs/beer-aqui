@@ -23,14 +23,17 @@ type NavigationProp = StackNavigationProp<VendorStackParamList, 'ManageProducts'
 
 export const ManageProductsScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    loadProducts();
-  }, []);
+    // Só carrega produtos quando a autenticação estiver pronta
+    if (!authLoading && isAuthenticated) {
+      loadProducts();
+    }
+  }, [authLoading, isAuthenticated]);
 
   const loadProducts = async () => {
     try {
