@@ -77,6 +77,17 @@ export const productService = {
     return response.data;
   },
 
+  async update(productId: string, data: {
+    brand?: string;
+    volume?: number;
+    price?: number;
+    stockQuantity?: number;
+    description?: string;
+  }): Promise<Product> {
+    const response = await apiClient.put<Product>(`/products/${productId}`, data);
+    return response.data;
+  },
+
   async toggleStatus(productId: string): Promise<Product> {
     const response = await apiClient.patch<Product>(`/products/${productId}/status`);
     return response.data;

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { View, StyleSheet, FlatList, TouchableOpacity, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import {
   Container,
@@ -28,14 +28,7 @@ export const ManageProductsScreen = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Só carrega produtos quando a autenticação estiver pronta
-    if (!authLoading && isAuthenticated) {
-      loadProducts();
-    }
-  }, [authLoading, isAuthenticated]);
-
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -47,7 +40,15 @@ export const ManageProductsScreen = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!authLoading && isAuthenticated) {
+        loadProducts();
+      }
+    }, [authLoading, isAuthenticated, loadProducts])
+  );
 
   const handleAddProduct = () => {
     navigation.navigate('AddProduct');

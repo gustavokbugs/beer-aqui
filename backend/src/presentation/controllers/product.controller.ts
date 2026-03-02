@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { DIContainer } from '@/infrastructure/di-container';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
+import { RedisCacheService } from '@/infrastructure/cache/redis.service';
+import { invalidateProductCache } from '@/infrastructure/cache/cache.helpers';
 
 export class ProductController {
   /**
@@ -25,6 +27,10 @@ export class ProductController {
         ...req.body,
         vendorId: vendor.id,
       });
+
+      // Invalidar cache de produtos
+      const cacheService = RedisCacheService.getInstance();
+      await invalidateProductCache(cacheService, result.id, vendor.id);
 
       res.status(201).json(result);
     } catch (error) {
@@ -62,6 +68,10 @@ export class ProductController {
         userId: req.user!.userId,
       });
 
+      // Invalidar cache de produtos
+      const cacheService = RedisCacheService.getInstance();
+      await invalidateProductCache(cacheService, req.params.id, result.vendorId);
+
       res.status(200).json(result);
     } catch (error) {
       next(error);
@@ -81,6 +91,10 @@ export class ProductController {
         newPrice: req.body.price,
       });
 
+      // Invalidar cache de produtos
+      const cacheService = RedisCacheService.getInstance();
+      await invalidateProductCache(cacheService, req.params.id, result.vendorId);
+
       res.status(200).json(result);
     } catch (error) {
       next(error);
@@ -99,6 +113,10 @@ export class ProductController {
         userId: req.user!.userId,
       });
 
+      // Invalidar cache de produtos
+      const cacheService = RedisCacheService.getInstance();
+      await invalidateProductCache(cacheService, req.params.id, result.vendorId);
+
       res.status(200).json(result);
     } catch (error) {
       next(error);
@@ -116,6 +134,10 @@ export class ProductController {
         productId: req.params.id,
         userId: req.user!.userId,
       });
+
+      // Invalidar cache de produtos
+      const cacheService = RedisCacheService.getInstance();
+      await invalidateProductCache(cacheService, req.params.id);
 
       res.status(200).json(result);
     } catch (error) {

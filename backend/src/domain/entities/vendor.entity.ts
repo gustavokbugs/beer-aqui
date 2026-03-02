@@ -1,5 +1,6 @@
 import { CNPJ } from '../value-objects/cnpj';
 import { Location } from '../value-objects/location';
+import { VendorNotVerifiedError } from '../errors/domain-errors';
 
 export enum VendorType {
   BAR = 'bar',
@@ -179,7 +180,7 @@ export class Vendor {
 
   ensureIsVerified(): void {
     if (!this.props.isVerified) {
-      throw new Error('Vendor is not verified');
+      throw new VendorNotVerifiedError();
     }
   }
 

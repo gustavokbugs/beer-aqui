@@ -12,6 +12,7 @@ import {
   ProfileScreen,
   ManageProductsScreen,
   AddProductScreen,
+  EditProductScreen,
 } from '@/screens';
 import { Text } from '@/components';
 import { useAuthStore } from '@/store/auth.store';
@@ -42,6 +43,7 @@ const VendorNavigator = () => {
     >
       <VendorStack.Screen name="ManageProducts" component={ManageProductsScreen} />
       <VendorStack.Screen name="AddProduct" component={AddProductScreen} />
+      <VendorStack.Screen name="EditProduct" component={EditProductScreen} />
     </VendorStack.Navigator>
   );
 };

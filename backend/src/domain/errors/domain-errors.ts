@@ -88,3 +88,10 @@ export class ConflictError extends DomainError {
     this.name = 'ConflictError';
   }
 }
+
+export class VendorNotVerifiedError extends DomainError {
+  constructor() {
+    super('Vendor account is not verified. Please wait for admin approval.');
+    this.name = 'VendorNotVerifiedError';
+  }
+}

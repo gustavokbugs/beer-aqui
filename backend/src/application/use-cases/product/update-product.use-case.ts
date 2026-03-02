@@ -7,11 +7,10 @@ import { ProductResponseDTO } from '@/application/dtos/product.dto';
 export interface UpdateProductDTO {
   productId: string;
   userId: string; // Para verificar autorização
-  name?: string;
   brand?: string;
-  volumeMl?: number;
+  volume?: number;
   price?: number;
-  stock?: number;
+  stockQuantity?: number;
   description?: string;
   imageUrl?: string;
 }
@@ -41,27 +40,20 @@ export class UpdateProductUseCase {
     }
 
     // Atualizar campos
-    if (dto.name !== undefined) {
-      if (dto.name.trim().length === 0) {
-        throw new ValidationError('Product name cannot be empty');
-      }
-      product.name = dto.name.trim();
-    }
-
     if (dto.brand !== undefined) {
       if (dto.brand.trim().length === 0) {
         throw new ValidationError('Brand cannot be empty');
       }
-      product.brand = dto.brand.trim();
+      product.updateBrand(dto.brand);
     }
 
-    if (dto.volumeMl !== undefined) {
-      if (!ALLOWED_VOLUMES.includes(dto.volumeMl)) {
+    if (dto.volume !== undefined) {
+      if (!ALLOWED_VOLUMES.includes(dto.volume)) {
         throw new ValidationError(
           `Invalid volume. Allowed volumes are: ${ALLOWED_VOLUMES.join(', ')} ml`
         );
       }
-      product.volumeMl = dto.volumeMl;
+      product.props.volume = dto.volume;
     }
 
     if (dto.price !== undefined) {
@@ -71,25 +63,19 @@ export class UpdateProductUseCase {
       product.updatePrice(dto.price);
     }
 
-    if (dto.stock !== undefined) {
-      if (dto.stock < 0) {
+    if (dto.stockQuantity !== undefined) {
+      if (dto.stockQuantity < 0) {
         throw new ValidationError('Stock cannot be negative');
       }
-      // Calcular diferença e ajustar estoque
-      const difference = dto.stock - product.stock;
-      if (difference > 0) {
-        product.increaseStock(difference);
-      } else if (difference < 0) {
-        product.decreaseStock(Math.abs(difference));
-      }
+      product.updateStock(dto.stockQuantity);
     }
 
     if (dto.description !== undefined) {
-      product.description = dto.description || null;
+      product.updateDescription(dto.description || '');
     }
 
     if (dto.imageUrl !== undefined) {
-      product.imageUrl = dto.imageUrl || null;
+      product.updateImage(dto.imageUrl || '');
     }
 
     // Salvar alterações
@@ -99,17 +85,17 @@ export class UpdateProductUseCase {
     return {
       id: updatedProduct.id,
       vendorId: updatedProduct.vendorId,
-      name: updatedProduct.name,
       brand: updatedProduct.brand,
-      volumeMl: updatedProduct.volumeMl,
+      volume: updatedProduct.volume,
       price: updatedProduct.price,
-      stock: updatedProduct.stock,
+      stockQuantity: updatedProduct.stockQuantity,
       description: updatedProduct.description,
       imageUrl: updatedProduct.imageUrl,
       isActive: updatedProduct.isActive,
       pricePerLiter: updatedProduct.getPricePerLiter(),
-      volumeInLiters: updatedProduct.volumeMl / 1000,
+      volumeInLiters: updatedProduct.volume / 1000,
       createdAt: updatedProduct.createdAt,
+      updatedAt: updatedProduct.updatedAt,
     };
   }
 }

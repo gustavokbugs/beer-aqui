@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ScrollView, Alert } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import {
   Container,
@@ -9,13 +9,15 @@ import {
   Button,
   Spacing,
   Card,
+  Loading,
 } from '@/components';
 import { theme } from '@/theme';
 import { formatCurrencyInput, parseCurrencyInput } from '@/utils';
 import { productService } from '@/services/product.service';
 import { VendorStackParamList } from '@/navigation/types';
 
-type NavigationProp = StackNavigationProp<VendorStackParamList, 'AddProduct'>;
+type NavigationProp = StackNavigationProp<VendorStackParamList, 'EditProduct'>;
+type RoutePropType = RouteProp<VendorStackParamList, 'EditProduct'>;
 
 const VOLUME_OPTIONS = [
   { label: '269ml (Lata)', value: 269 },
@@ -26,14 +28,42 @@ const VOLUME_OPTIONS = [
   { label: '1000ml (Litro)', value: 1000 },
 ];
 
-export const AddProductScreen = () => {
+export const EditProductScreen = () => {
   const navigation = useNavigation<NavigationProp>();
+  const route = useRoute<RoutePropType>();
+  const { productId } = route.params;
+
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingProduct, setIsLoadingProduct] = useState(true);
   const [brand, setBrand] = useState('');
   const [volume, setVolume] = useState('350');
   const [price, setPrice] = useState('0,00');
   const [stockQuantity, setStockQuantity] = useState('');
   const [description, setDescription] = useState('');
+
+  useEffect(() => {
+    loadProduct();
+  }, [productId]);
+
+  const loadProduct = async () => {
+    try {
+      setIsLoadingProduct(true);
+      const { product } = await productService.getById(productId);
+      
+      setBrand(product.brand);
+      setVolume(product.volume?.toString() || product.volumeMl?.toString() || '350');
+      setPrice(formatCurrencyInput((product.price * 100).toString()));
+      setStockQuantity(product.stockQuantity?.toString() || '0');
+      setDescription(product.description || '');
+    } catch (err: any) {
+      console.error('Error loading product:', err);
+      Alert.alert('Erro', 'Não foi possível carregar os dados do produto', [
+        { text: 'Voltar', onPress: () => navigation.goBack() }
+      ]);
+    } finally {
+      setIsLoadingProduct(false);
+    }
+  };
 
   const handlePriceChange = (value: string) => {
     const formatted = formatCurrencyInput(value);
@@ -43,7 +73,7 @@ export const AddProductScreen = () => {
   const handleSubmit = async () => {
     setIsLoading(true);
     try {
-      await productService.create({
+      await productService.update(productId, {
         brand,
         volume: parseInt(volume),
         price: parseCurrencyInput(price),
@@ -51,32 +81,20 @@ export const AddProductScreen = () => {
         description: description || undefined,
       });
       
-      Alert.alert('Sucesso', 'Produto cadastrado com sucesso!', [
+      Alert.alert('Sucesso', 'Produto atualizado com sucesso!', [
         { text: 'OK', onPress: () => navigation.goBack() },
       ]);
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || err.message || 'Erro ao cadastrar produto';
-      const statusCode = err.response?.status;
-      
-      if (errorMessage.includes('Vendor profile not found')) {
-        Alert.alert(
-          'Perfil Incompleto',
-          'Você precisa completar seu perfil de vendedor antes de cadastrar produtos. Entre em contato com o suporte.',
-          [{ text: 'OK' }]
-        );
-      } else if (statusCode === 403 || errorMessage.toLowerCase().includes('not verified')) {
-        Alert.alert(
-          'Conta Não Verificada',
-          'Sua conta de vendedor ainda não foi verificada. Por favor, aguarde a aprovação do administrador para começar a cadastrar produtos.',
-          [{ text: 'Entendi' }]
-        );
-      } else {
-        Alert.alert('Erro', errorMessage);
-      }
+      const errorMessage = err.response?.data?.message || err.message || 'Erro ao atualizar produto';
+      Alert.alert('Erro', errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (isLoadingProduct) {
+    return <Loading fullScreen message="Carregando produto..." />;
+  }
 
   return (
     <Container safe padding>
@@ -91,10 +109,10 @@ export const AddProductScreen = () => {
           </Button>
           <Spacing size="md" />
           <Text variant="h1" weight="bold">
-            Adicionar Produto
+            Editar Produto
           </Text>
           <Text variant="body" color="secondary">
-            Preencha os dados do produto
+            Atualize os dados do produto
           </Text>
         </View>
 
@@ -176,7 +194,7 @@ export const AddProductScreen = () => {
           onPress={handleSubmit}
           loading={isLoading}
         >
-          Cadastrar Produto
+          Atualizar Produto
         </Button>
 
         <Spacing size="xl" />
