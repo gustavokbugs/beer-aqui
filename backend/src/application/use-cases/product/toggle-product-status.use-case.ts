@@ -42,17 +42,17 @@ export class ToggleProductStatusUseCase {
     return {
       id: updatedProduct.id,
       vendorId: updatedProduct.vendorId,
-      name: updatedProduct.name,
       brand: updatedProduct.brand,
-      volumeMl: updatedProduct.volumeMl,
+      volume: updatedProduct.volume,
       price: updatedProduct.price,
-      stock: updatedProduct.stock,
+      stockQuantity: updatedProduct.stockQuantity,
       description: updatedProduct.description,
       imageUrl: updatedProduct.imageUrl,
       isActive: updatedProduct.isActive,
       pricePerLiter: updatedProduct.getPricePerLiter(),
-      volumeInLiters: updatedProduct.volumeMl / 1000,
+      volumeInLiters: updatedProduct.volume / 1000,
       createdAt: updatedProduct.createdAt,
+      updatedAt: updatedProduct.updatedAt,
     };
   }
 }

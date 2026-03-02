@@ -4,6 +4,7 @@ import {
   NotFoundError,
   UnauthorizedError,
   ConflictError,
+  VendorNotVerifiedError,
   DomainError,
 } from '@/domain/errors/domain-errors';
 import { Prisma } from '@prisma/client';
@@ -54,6 +55,14 @@ export const errorHandler = (
   if (error instanceof ConflictError) {
     res.status(409).json({
       error: 'Conflict',
+      message: error.message,
+    });
+    return;
+  }
+
+  if (error instanceof VendorNotVerifiedError) {
+    res.status(403).json({
+      error: 'Forbidden',
       message: error.message,
     });
     return;

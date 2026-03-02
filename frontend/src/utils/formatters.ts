@@ -152,3 +152,41 @@ export const validateCNPJ = (cnpj: string): boolean => {
 
   return true;
 };
+
+/**
+ * Format currency input for Brazilian Real (masks as user types)
+ * @param value - The raw input value (only digits)
+ * @returns Formatted currency string (e.g., "2,53" or "12,50")
+ * @example
+ * formatCurrencyInput("253") // "2,53"
+ * formatCurrencyInput("1250") // "12,50"
+ * formatCurrencyInput("12500") // "125,00"
+ */
+export const formatCurrencyInput = (value: string): string => {
+  // Remove tudo que não é dígito
+  const cleaned = value.replace(/\D/g, '');
+  
+  if (!cleaned || cleaned === '0') {
+    return '0,00';
+  }
+  
+  // Converte para número (centavos)
+  const cents = parseInt(cleaned, 10);
+  
+  // Divide por 100 para obter o valor em reais
+  const reais = cents / 100;
+  
+  // Formata com 2 casas decimais e vírgula
+  return reais.toFixed(2).replace('.', ',');
+};
+
+/**
+ * Parse currency input to number
+ * @param value - The formatted currency string (e.g., "2,53" or "12,50")
+ * @returns Numeric value (e.g., 2.53 or 12.50)
+ */
+export const parseCurrencyInput = (value: string): number => {
+  // Remove tudo que não é dígito ou vírgula
+  const cleaned = value.replace(/[^\d,]/g, '').replace(',', '.');
+  return parseFloat(cleaned) || 0;
+};
