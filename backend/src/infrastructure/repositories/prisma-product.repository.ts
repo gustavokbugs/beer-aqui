@@ -1,4 +1,8 @@
-import { IProductRepository, SearchProductsQuery as SearchProductFilters } from '@/domain/repositories/product.repository';
+import {
+  IProductRepository,
+  SearchProductsQuery as SearchProductFilters,
+  SearchNearbyProductsQuery,
+} from '@/domain/repositories/product.repository';
 import { Product } from '@/domain/entities/product.entity';
 import { PrismaService } from '../database/prisma.service';
 
@@ -53,7 +57,6 @@ export class PrismaProductRepository implements IProductRepository {
       where.vendorId = filters.vendorId;
     }
 
-    // Busca fuzzy: aceita busca parcial ("hein" encontra "Heineken")
     if (filters.brand) {
       where.brand = {
         contains: filters.brand,
@@ -79,7 +82,6 @@ export class PrismaProductRepository implements IProductRepository {
       where.isActive = filters.isActive;
     }
 
-    // Filtros de localização via vendor
     if (filters.state || filters.city || filters.neighborhood) {
       where.vendor = {};
       if (filters.state) {
@@ -117,6 +119,91 @@ export class PrismaProductRepository implements IProductRepository {
 
     return {
       products: products.map((p) => ({ product: this.toDomain(p), vendor: p.vendor })),
+      total,
+    };
+  }
+
+  async findNearby(
+    filters: SearchNearbyProductsQuery,
+    page: number,
+    limit: number
+  ): Promise<{ products: Array<{ product: Product; vendor: any }>; total: number }> {
+    const now = new Date();
+    const where: any = {
+      isActive: filters.isActive ?? true,
+    };
+
+    if (filters.brand) {
+      where.brand = {
+        contains: filters.brand,
+        mode: 'insensitive',
+      };
+    }
+
+    if (filters.volume) {
+      where.volume = filters.volume;
+    }
+
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+      where.price = {};
+      if (filters.minPrice !== undefined) {
+        where.price.gte = filters.minPrice;
+      }
+      if (filters.maxPrice !== undefined) {
+        where.price.lte = filters.maxPrice;
+      }
+    }
+
+    const allProducts = await this.prisma.product.findMany({
+      where,
+      include: {
+        vendor: true,
+        ads: {
+          where: {
+            status: 'active',
+            startDate: { lte: now },
+            endDate: { gte: now },
+          },
+          orderBy: { priority: 'desc' },
+          take: 1,
+        },
+      },
+    });
+
+    const productsWithDistance = allProducts
+      .map((item) => {
+        const distanceInMeters = this.calculateDistanceInMeters(
+          filters.latitude,
+          filters.longitude,
+          item.vendor.latitude,
+          item.vendor.longitude
+        );
+        return {
+          product: item,
+          distanceInMeters,
+          adPriority: item.ads?.[0]?.priority ?? 0,
+        };
+      })
+      .filter((item) => item.distanceInMeters <= filters.radiusInMeters)
+      .sort((a, b) => {
+        if (b.adPriority !== a.adPriority) {
+          return b.adPriority - a.adPriority;
+        }
+        return a.distanceInMeters - b.distanceInMeters;
+      });
+
+    const total = productsWithDistance.length;
+    const skip = (page - 1) * limit;
+    const paginated = productsWithDistance.slice(skip, skip + limit);
+
+    return {
+      products: paginated.map((item) => ({
+        product: this.toDomain(item.product),
+        vendor: {
+          ...item.product.vendor,
+          distanceInMeters: item.distanceInMeters,
+        },
+      })),
       total,
     };
   }
@@ -239,6 +326,29 @@ export class PrismaProductRepository implements IProductRepository {
     await this.prisma.product.delete({
       where: { id },
     });
+  }
+
+  private calculateDistanceInMeters(
+    latitude1: number,
+    longitude1: number,
+    latitude2: number,
+    longitude2: number
+  ): number {
+    const earthRadiusMeters = 6371e3;
+    const latitude1Radians = (latitude1 * Math.PI) / 180;
+    const latitude2Radians = (latitude2 * Math.PI) / 180;
+    const deltaLatitude = ((latitude2 - latitude1) * Math.PI) / 180;
+    const deltaLongitude = ((longitude2 - longitude1) * Math.PI) / 180;
+
+    const a =
+      Math.sin(deltaLatitude / 2) * Math.sin(deltaLatitude / 2) +
+      Math.cos(latitude1Radians) *
+        Math.cos(latitude2Radians) *
+        Math.sin(deltaLongitude / 2) *
+        Math.sin(deltaLongitude / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return earthRadiusMeters * c;
   }
 
   private toDomain(raw: any): Product {

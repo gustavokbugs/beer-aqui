@@ -9,62 +9,43 @@ export interface SearchProductsQuery {
   isActive?: boolean;
   limit?: number;
   offset?: number;
-  // Filtros de localização
   state?: string;
   city?: string;
   neighborhood?: string;
 }
 
+export interface SearchNearbyProductsQuery {
+  latitude: number;
+  longitude: number;
+  radiusInMeters: number;
+  brand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  volume?: number;
+  isActive?: boolean;
+}
+
 export interface IProductRepository {
-  /**
-   * Encontra um produto por ID
-   */
   findById(id: string): Promise<Product | null>;
-
-  /**
-   * Salva um novo produto
-   */
   save(product: Product): Promise<Product>;
-
-  /**
-   * Atualiza um produto existente
-   */
   update(product: Product): Promise<Product>;
-
-  /**
-   * Remove um produto
-   */
   delete(id: string): Promise<void>;
-
-  /**
-   * Lista produtos de um vendedor
-   */
   findByVendorId(vendorId: string, page: number, limit: number): Promise<{
     products: Product[];
     total: number;
   }>;
-
-  /**
-   * Busca produtos com filtros
-   */
-  search(query: SearchProductsQuery, page: number, limit: number): Promise<{ 
-    products: Array<{ product: Product; vendor: any }>; 
+  search(query: SearchProductsQuery, page: number, limit: number): Promise<{
+    products: Array<{ product: Product; vendor: any }>;
     total: number;
   }>;
-
-  /**
-   * Busca produtos por marca
-   */
+  findNearby(query: SearchNearbyProductsQuery, page: number, limit: number): Promise<{
+    products: Array<{ product: Product; vendor: any }>;
+    total: number;
+  }>;
   findByBrand(brand: string, page: number, limit: number): Promise<{
     products: Product[];
     total: number;
   }>;
-
-  /**
-   * Lista todos os produtos ativos
-   */
-  findAllActive(page: number, limit: number): Promise<{ products: Product[]; total: number }>;  /**
-   * Busca sugestões de marcas para autocomplete
-   */
+  findAllActive(page: number, limit: number): Promise<{ products: Product[]; total: number }>;
   searchBrandSuggestions(query: string, limit: number): Promise<string[]>;
 }

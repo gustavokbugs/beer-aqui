@@ -16,7 +16,7 @@ import {
 import { useProductStore } from '@/store/product.store';
 import { useLocationStore } from '@/store/location.store';
 import { theme } from '@/theme';
-import { formatPrice, formatVolume, formatDistance, getProductVolume } from '@/utils';
+import { formatPrice, formatVolume, getProductVolume } from '@/utils';
 import { Product } from '@/types';
 import { productService } from '@/services/product.service';
 import { SearchStackParamList } from '@/navigation/types';
@@ -49,7 +49,6 @@ export const SearchScreen = () => {
   }, []);
 
   useEffect(() => {
-    // Autocomplete: buscar sugest\u00f5es enquanto digita
     const fetchSuggestions = async () => {
       if (searchQuery.length >= 2) {
         try {
@@ -71,10 +70,13 @@ export const SearchScreen = () => {
 
   const loadInitialData = async () => {
     await getCurrentLocation();
-    if (currentLocation && !useLocationFilters) {
+    const location = useLocationStore.getState().currentLocation;
+    if (location && !useLocationFilters) {
       await searchProducts({
         ...filters,
         radiusKm: filters.radiusKm || 5,
+        latitude: location.latitude,
+        longitude: location.longitude,
       });
     }
   };
@@ -94,6 +96,13 @@ export const SearchScreen = () => {
       if (state.trim()) searchFilters.state = state.trim();
       if (city.trim()) searchFilters.city = city.trim();
       if (neighborhood.trim()) searchFilters.neighborhood = neighborhood.trim();
+    } else {
+      const location = currentLocation || useLocationStore.getState().currentLocation;
+      if (location) {
+        searchFilters.latitude = location.latitude;
+        searchFilters.longitude = location.longitude;
+        searchFilters.radiusKm = filters.radiusKm || 5;
+      }
     }
 
     await searchProducts(searchFilters);
@@ -103,13 +112,19 @@ export const SearchScreen = () => {
     setSearchQuery(suggestion);
     setShowSuggestions(false);
     setFilters({ brand: suggestion });
-    searchProducts({ ...filters, brand: suggestion });
+    const location = currentLocation || useLocationStore.getState().currentLocation;
+    searchProducts({
+      ...filters,
+      brand: suggestion,
+      latitude: location?.latitude,
+      longitude: location?.longitude,
+      radiusKm: filters.radiusKm || 5,
+    });
   };
 
   const toggleLocationMode = () => {
     setUseLocationFilters(!useLocationFilters);
     if (useLocationFilters) {
-      // Limpar filtros de localiza\u00e7\u00e3o
       setCity('');
       setState('');
       setNeighborhood('');
@@ -259,7 +274,6 @@ export const SearchScreen = () => {
             rightIcon={<Ionicons name="search" size={20} color={theme.colors.secondary.main} />}
           />
 
-          {/* Autocomplete Suggestions */}
           {showSuggestions && (
             <View style={styles.suggestionsContainer}>
               <ScrollView style={styles.suggestionsList} keyboardShouldPersistTaps="handled">
@@ -282,7 +296,6 @@ export const SearchScreen = () => {
 
         <Spacing size="md" />
 
-        {/* Toggle de Filtro de Localiza\u00e7\u00e3o */}
         <Button
           variant={useLocationFilters ? 'primary' : 'outline'}
           size="sm"
@@ -305,7 +318,6 @@ export const SearchScreen = () => {
           </View>
         </Button>
 
-        {/* Filtros de Localiza\u00e7\u00e3o */}
         {useLocationFilters && (
           <>
             <Spacing size="sm" />

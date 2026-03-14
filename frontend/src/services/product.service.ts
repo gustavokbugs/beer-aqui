@@ -11,6 +11,8 @@ export interface SearchProductsResponse {
 export const productService = {
   async search(filters: SearchFilters): Promise<SearchProductsResponse> {
     const params: any = {};
+    const hasCoordinates =
+      typeof filters.latitude === 'number' && typeof filters.longitude === 'number';
 
     if (filters.brand) params.brand = filters.brand;
     if (filters.minPrice) params.minPrice = filters.minPrice;
@@ -21,10 +23,18 @@ export const productService = {
     if (filters.city) params.city = filters.city;
     if (filters.neighborhood) params.neighborhood = filters.neighborhood;
 
+    if (hasCoordinates) {
+      params.latitude = filters.latitude;
+      params.longitude = filters.longitude;
+      params.radiusInMeters = (filters.radiusKm || 5) * 1000;
+    }
+
     params.page = 1;
     params.limit = 50;
 
-    const response = await apiClient.get<SearchProductsResponse>('/products/search', {
+    const endpoint = hasCoordinates ? '/products/nearby' : '/products/search';
+
+    const response = await apiClient.get<SearchProductsResponse>(endpoint, {
       params,
     });
     return response.data;

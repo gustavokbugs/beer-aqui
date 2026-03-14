@@ -23,13 +23,11 @@ export interface Vendor {
   companyName: string;
   cnpj?: string;
   type: string;
-  // Dados de localização diretos (quando vem do product.vendor)
   city?: string;
   state?: string;
   neighborhood?: string;
   latitude?: number;
   longitude?: number;
-  // Dados de localização completos
   location?: Location;
   address?: {
     street: string;
@@ -40,7 +38,8 @@ export interface Vendor {
   };
   phone?: string;
   isVerified?: boolean;
-  distance?: number; // em metros
+  distance?: number;
+  distanceInMeters?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -49,8 +48,8 @@ export interface Product {
   id: string;
   vendorId: string;
   brand: string;
-  volume: number; // Backend usa 'volume' em vez de 'volumeMl'
-  volumeMl?: number; // Alias para compatibilidade
+  volume: number;
+  volumeMl?: number;
   volumeInLiters?: number;
   price: number;
   pricePerLiter?: number;
@@ -84,6 +83,8 @@ export interface SearchFilters {
   state?: string;
   city?: string;
   neighborhood?: string;
+  latitude?: number;
+  longitude?: number;
   page?: number;
   limit?: number;
 }

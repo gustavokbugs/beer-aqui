@@ -26,6 +26,7 @@ export interface VendorBasicDTO {
   neighborhood?: string;
   latitude: number;
   longitude: number;
+  distanceInMeters?: number;
 }
 
 export interface ProductResponseDTO {
@@ -51,10 +52,21 @@ export interface SearchProductsDTO {
   minPrice?: number;
   maxPrice?: number;
   volume?: number;
-  // Filtros de localiza\u00e7\u00e3o
   state?: string;
   city?: string;
   neighborhood?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface SearchNearbyProductsDTO {
+  latitude: number;
+  longitude: number;
+  radiusInMeters?: number;
+  brand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  volume?: number;
   page?: number;
   limit?: number;
 }

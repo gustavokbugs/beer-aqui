@@ -3,13 +3,8 @@ import { DIContainer } from '@/infrastructure/di-container';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 
 export class ProductController {
-  /**
-   * POST /api/v1/products
-   * Criar novo produto
-   */
   static async create(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      // Buscar vendor pelo userId
       const vendorRepository = DIContainer.getVendorRepository();
       const vendor = await vendorRepository.findByUserId(req.user!.userId);
       
@@ -32,10 +27,6 @@ export class ProductController {
     }
   }
 
-  /**
-   * GET /api/v1/products/:id
-   * Buscar detalhes do produto
-   */
   static async getDetails(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getGetProductDetailsUseCase();
@@ -49,10 +40,6 @@ export class ProductController {
     }
   }
 
-  /**
-   * PUT /api/v1/products/:id
-   * Atualizar produto
-   */
   static async update(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getUpdateProductUseCase();
@@ -68,10 +55,6 @@ export class ProductController {
     }
   }
 
-  /**
-   * PATCH /api/v1/products/:id/price
-   * Atualizar preço do produto
-   */
   static async updatePrice(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getUpdateProductPriceUseCase();
@@ -87,10 +70,6 @@ export class ProductController {
     }
   }
 
-  /**
-   * PATCH /api/v1/products/:id/status
-   * Alternar status do produto
-   */
   static async toggleStatus(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getToggleProductStatusUseCase();
@@ -105,10 +84,6 @@ export class ProductController {
     }
   }
 
-  /**
-   * DELETE /api/v1/products/:id
-   * Deletar produto (soft delete)
-   */
   static async delete(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getDeleteProductUseCase();
@@ -123,10 +98,6 @@ export class ProductController {
     }
   }
 
-  /**
-   * GET /api/v1/products/search
-   * Buscar produtos com filtros
-   */
   static async search(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getSearchProductsUseCase();
@@ -149,10 +120,29 @@ export class ProductController {
     }
   }
 
-  /**
-   * GET /api/v1/vendors/:vendorId/products
-   * Listar produtos de um vendedor
-   */
+  static async searchNearby(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = DIContainer.getSearchNearbyProductsUseCase();
+      const result = await useCase.execute({
+        latitude: parseFloat(req.query.latitude as string),
+        longitude: parseFloat(req.query.longitude as string),
+        radiusInMeters: req.query.radiusInMeters
+          ? parseFloat(req.query.radiusInMeters as string)
+          : 5000,
+        brand: req.query.brand as string,
+        volume: req.query.volume ? parseInt(req.query.volume as string) : undefined,
+        minPrice: req.query.minPrice ? parseFloat(req.query.minPrice as string) : undefined,
+        maxPrice: req.query.maxPrice ? parseFloat(req.query.maxPrice as string) : undefined,
+        page: req.query.page ? parseInt(req.query.page as string) : 1,
+        limit: req.query.limit ? parseInt(req.query.limit as string) : 20,
+      });
+
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async listByVendor(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getListVendorProductsUseCase();
@@ -169,18 +159,12 @@ export class ProductController {
     }
   }
 
-  /**
-   * GET /api/v1/products/my-products
-   * Listar produtos do vendedor autenticado
-   */
   static async listMyProducts(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
-      // Buscar vendor pelo userId
       const vendorRepository = DIContainer.getVendorRepository();
       const vendor = await vendorRepository.findByUserId(req.user!.userId);
       
       if (!vendor) {
-        // Se não tem vendor, retornar lista vazia em vez de erro
         res.status(200).json({
           products: [],
           total: 0,
@@ -205,10 +189,6 @@ export class ProductController {
     }
   }
 
-  /**
-   * GET /api/v1/products/brands/:brand
-   * Buscar produtos por marca
-   */
   static async searchByBrand(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getSearchProductsByBrandUseCase();
@@ -226,10 +206,6 @@ export class ProductController {
     }
   }
 
-  /**
-   * GET /api/v1/products/suggestions
-   * Obter sugest\u00f5es de marcas para autocomplete
-   */
   static async getBrandSuggestions(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getGetBrandSuggestionsUseCase();

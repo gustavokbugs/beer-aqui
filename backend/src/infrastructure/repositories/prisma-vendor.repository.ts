@@ -3,7 +3,6 @@ import { Vendor, VendorType } from '@/domain/entities/vendor.entity';
 import { CNPJ } from '@/domain/value-objects/cnpj';
 import { Location } from '@/domain/value-objects/location';
 import { PrismaService } from '../database/prisma.service';
-import { Prisma } from '@prisma/client';
 
 export class PrismaVendorRepository implements IVendorRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -38,6 +37,24 @@ export class PrismaVendorRepository implements IVendorRepository {
     return this.toDomain(vendor);
   }
 
+  async findAll(page: number, limit: number): Promise<{ vendors: Vendor[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    const [vendors, total] = await Promise.all([
+      this.prisma.vendor.findMany({
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.vendor.count(),
+    ]);
+
+    return {
+      vendors: vendors.map((vendor) => this.toDomain(vendor)),
+      total,
+    };
+  }
+
   async findNearby(query: {
     location: Location;
     radiusInMeters: number;
@@ -70,8 +87,8 @@ export class PrismaVendorRepository implements IVendorRepository {
     // Calcular distância usando Haversine
     const vendorsWithDistance = allVendors.map((vendor) => {
       const distance = this.calculateDistance(
-        location.latitude,
-        location.longitude,
+        location.getLatitude(),
+        location.getLongitude(),
         vendor.latitude,
         vendor.longitude
       );
@@ -120,8 +137,8 @@ export class PrismaVendorRepository implements IVendorRepository {
         companyName: vendor.companyName,
         cnpj: vendor.cnpj.getValue(),
         type: vendor.type,
-        latitude: vendor.location.latitude,
-        longitude: vendor.location.longitude,
+        latitude: vendor.location.getLatitude(),
+        longitude: vendor.location.getLongitude(),
         addressStreet: vendor.address.street,
         addressNumber: vendor.address.number,
         addressCity: vendor.address.city,
@@ -144,8 +161,8 @@ export class PrismaVendorRepository implements IVendorRepository {
         companyName: vendor.companyName,
         cnpj: vendor.cnpj.getValue(),
         type: vendor.type,
-        latitude: vendor.location.latitude,
-        longitude: vendor.location.longitude,
+        latitude: vendor.location.getLatitude(),
+        longitude: vendor.location.getLongitude(),
         addressStreet: vendor.address.street,
         addressNumber: vendor.address.number,
         addressCity: vendor.address.city,

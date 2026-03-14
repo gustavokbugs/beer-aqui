@@ -31,6 +31,7 @@ import { DeleteProductUseCase } from '@/application/use-cases/product/delete-pro
 import { ListVendorProductsUseCase } from '@/application/use-cases/product/list-vendor-products.use-case';
 import { GetProductDetailsUseCase } from '@/application/use-cases/product/get-product-details.use-case';
 import { SearchProductsUseCase } from '@/application/use-cases/product/search-products.use-case';
+import { SearchNearbyProductsUseCase } from '@/application/use-cases/product/search-nearby-products.use-case';
 import { SearchProductsByBrandUseCase } from '@/application/use-cases/product/search-products-by-brand.use-case';
 import { GetBrandSuggestionsUseCase } from '@/application/use-cases/product/get-brand-suggestions.use-case';
 
@@ -81,6 +82,7 @@ export class DIContainer {
   private static listVendorProductsUseCase: ListVendorProductsUseCase;
   private static getProductDetailsUseCase: GetProductDetailsUseCase;
   private static searchProductsUseCase: SearchProductsUseCase;
+  private static searchNearbyProductsUseCase: SearchNearbyProductsUseCase;
   private static searchProductsByBrandUseCase: SearchProductsByBrandUseCase;
   private static getBrandSuggestionsUseCase: GetBrandSuggestionsUseCase;
 
@@ -347,6 +349,13 @@ export class DIContainer {
       this.searchProductsUseCase = new SearchProductsUseCase(this.getProductRepository());
     }
     return this.searchProductsUseCase;
+  }
+
+  static getSearchNearbyProductsUseCase(): SearchNearbyProductsUseCase {
+    if (!this.searchNearbyProductsUseCase) {
+      this.searchNearbyProductsUseCase = new SearchNearbyProductsUseCase(this.getProductRepository());
+    }
+    return this.searchNearbyProductsUseCase;
   }
 
   static getSearchProductsByBrandUseCase(): SearchProductsByBrandUseCase {
