@@ -1,25 +1,33 @@
 import { IAdRepository } from '@/domain/repositories/ad.repository';
 import { IProductRepository } from '@/domain/repositories/product.repository';
+import { IVendorRepository } from '@/domain/repositories/vendor.repository';
 import { Ad, AdStatus, PaymentStatus } from '@/domain/entities/ad.entity';
 import { CreateAdDTO, AdResponseDTO } from '../dtos/ad.dto';
 
 export class CreateAdUseCase {
   constructor(
     private adRepository: IAdRepository,
-    private productRepository: IProductRepository
+    private productRepository: IProductRepository,
+    private vendorRepository: IVendorRepository
   ) {}
 
   async execute(dto: CreateAdDTO): Promise<AdResponseDTO> {
-    // Verificar se produto existe
     const product = await this.productRepository.findById(dto.productId);
     if (!product) {
       throw new Error('Product not found');
     }
 
-    // Verificar se produto está ativo
+    const vendor = await this.vendorRepository.findById(product.vendorId);
+    if (!vendor) {
+      throw new Error('Vendor not found');
+    }
+
+    if (vendor.userId !== dto.userId) {
+      throw new Error('You are not authorized to create ad for this product');
+    }
+
     product.ensureIsActive();
 
-    // Validar datas
     const now = new Date();
     if (dto.startDate < now) {
       throw new Error('Start date cannot be in the past');
@@ -29,12 +37,10 @@ export class CreateAdUseCase {
       throw new Error('End date must be after start date');
     }
 
-    // Validar prioridade
     if (dto.priority < 1 || dto.priority > 10) {
       throw new Error('Priority must be between 1 and 10');
     }
 
-    // Criar anúncio
     const ad = Ad.create({
       productId: dto.productId,
       startDate: dto.startDate,
@@ -44,7 +50,6 @@ export class CreateAdUseCase {
       paymentStatus: PaymentStatus.PENDING,
     });
 
-    // Salvar no banco
     const savedAd = await this.adRepository.save(ad);
 
     return {

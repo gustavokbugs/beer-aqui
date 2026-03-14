@@ -382,7 +382,8 @@ export class DIContainer {
     if (!this.createAdUseCase) {
       this.createAdUseCase = new CreateAdUseCase(
         this.getAdRepository(),
-        this.getProductRepository()
+        this.getProductRepository(),
+        this.getVendorRepository()
       );
     }
     return this.createAdUseCase;

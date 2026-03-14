@@ -23,13 +23,12 @@ type NavigationProp = StackNavigationProp<VendorStackParamList, 'ManageProducts'
 
 export const ManageProductsScreen = () => {
   const navigation = useNavigation<NavigationProp>();
-  const { user, isAuthenticated, isLoading: authLoading } = useAuthStore();
+  const { isAuthenticated, isLoading: authLoading } = useAuthStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Só carrega produtos quando a autenticação estiver pronta
     if (!authLoading && isAuthenticated) {
       loadProducts();
     }
@@ -51,6 +50,10 @@ export const ManageProductsScreen = () => {
 
   const handleAddProduct = () => {
     navigation.navigate('AddProduct');
+  };
+
+  const handleManageAds = () => {
+    navigation.navigate('ManageAds');
   };
 
   const handleEditProduct = (product: Product) => {
@@ -146,6 +149,12 @@ export const ManageProductsScreen = () => {
           Gerencie seus produtos
         </Text>
       </View>
+
+      <Spacing size="lg" />
+
+      <Button variant="outline" onPress={handleManageAds}>
+        Gerenciar anúncios
+      </Button>
 
       <Spacing size="lg" />
 

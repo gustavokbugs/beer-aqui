@@ -3,15 +3,14 @@ import { DIContainer } from '@/infrastructure/di-container';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 
 export class AdController {
-  /**
-   * POST /api/v1/ads
-   * Criar novo anúncio
-   */
   static async create(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getCreateAdUseCase();
       const result = await useCase.execute({
-        ...req.body,
+        productId: req.body.productId,
+        startDate: new Date(req.body.startDate),
+        endDate: new Date(req.body.endDate),
+        priority: Number(req.body.priority),
         userId: req.user!.userId,
       });
 
@@ -21,17 +20,12 @@ export class AdController {
     }
   }
 
-  /**
-   * GET /api/v1/ads/active
-   * Listar anúncios ativos
-   */
   static async listActive(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getListActiveAdsUseCase();
-      const result = await useCase.execute({
-        page: req.query.page ? parseInt(req.query.page as string) : undefined,
-        limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
-      });
+      const page = req.query.page ? parseInt(req.query.page as string) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const result = await useCase.execute(page, limit);
 
       res.status(200).json(result);
     } catch (error) {
@@ -39,10 +33,6 @@ export class AdController {
     }
   }
 
-  /**
-   * POST /api/v1/ads/:id/cancel
-   * Cancelar anúncio
-   */
   static async cancel(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getCancelAdUseCase();
@@ -57,10 +47,6 @@ export class AdController {
     }
   }
 
-  /**
-   * POST /api/v1/ads/expire
-   * Expirar anúncios (cron job - sem auth)
-   */
   static async expire(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getExpireAdsUseCase();

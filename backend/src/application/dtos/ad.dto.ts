@@ -1,5 +1,6 @@
 export interface CreateAdDTO {
   productId: string;
+  userId: string;
   startDate: Date;
   endDate: Date;
   priority: number;

@@ -1,6 +1,5 @@
 import { NavigatorScreenParams } from '@react-navigation/native';
 
-// Auth Stack
 export type AuthStackParamList = {
   Welcome: undefined;
   Login: undefined;
@@ -15,7 +14,6 @@ export type AuthStackParamList = {
   ForgotPassword: undefined;
 };
 
-// Main Tab Navigator
 export type MainTabParamList = {
   Search: NavigatorScreenParams<SearchStackParamList>;
   Map: undefined;
@@ -24,27 +22,25 @@ export type MainTabParamList = {
   Profile: undefined;
 };
 
-// Search Stack
 export type SearchStackParamList = {
   SearchHome: undefined;
   ProductDetails: { productId: string };
   VendorDetails: { vendorId: string };
 };
 
-// Vendor Stack
 export type VendorStackParamList = {
   ManageProducts: undefined;
+  ManageAds: undefined;
+  CreateAd: { productId?: string } | undefined;
   AddProduct: undefined;
   EditProduct: { productId: string };
 };
 
-// Map Stack
 export type MapStackParamList = {
   MapView: undefined;
   VendorDetails: { vendorId: string };
 };
 
-// Root Navigator
 export type RootStackParamList = {
   Auth: NavigatorScreenParams<AuthStackParamList>;
   Main: NavigatorScreenParams<MainTabParamList>;

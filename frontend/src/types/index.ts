@@ -70,6 +70,11 @@ export interface Ad {
   startDate: string;
   endDate: string;
   status: 'active' | 'expired' | 'cancelled';
+  paymentStatus?: 'pending' | 'paid' | 'refunded';
+  durationInDays?: number;
+  remainingDays?: number;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface SearchFilters {
