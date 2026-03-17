@@ -3,10 +3,6 @@ import { DIContainer } from '@/infrastructure/di-container';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 
 export class VendorController {
-  /**
-   * POST /api/v1/vendors
-   * Criar novo vendedor
-   */
   static async create(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getCreateVendorUseCase();
@@ -21,10 +17,6 @@ export class VendorController {
     }
   }
 
-  /**
-   * GET /api/v1/vendors/:id
-   * Buscar perfil de vendedor
-   */
   static async getProfile(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getGetVendorProfileUseCase();
@@ -38,10 +30,6 @@ export class VendorController {
     }
   }
 
-  /**
-   * PUT /api/v1/vendors/:id
-   * Atualizar vendedor
-   */
   static async update(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getUpdateVendorUseCase();
@@ -57,10 +45,41 @@ export class VendorController {
     }
   }
 
-  /**
-   * GET /api/v1/vendors/nearby
-   * Buscar vendedores próximos
-   */
+  static async getMyProfile(
+    req: AuthenticatedRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const vendorRepository = DIContainer.getVendorRepository();
+      const vendor = await vendorRepository.findByUserId(req.user!.userId);
+
+      if (!vendor) {
+        res.status(404).json({ message: 'Vendor profile not found' });
+        return;
+      }
+
+      res.status(200).json({
+        id: vendor.id,
+        userId: vendor.userId,
+        companyName: vendor.companyName,
+        cnpj: vendor.cnpj.getFormatted(),
+        type: vendor.type,
+        location: {
+          latitude: vendor.location.getLatitude(),
+          longitude: vendor.location.getLongitude(),
+        },
+        address: vendor.address,
+        phone: vendor.phone,
+        isVerified: vendor.isVerified,
+        createdAt: vendor.createdAt,
+        updatedAt: vendor.updatedAt,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async searchNearby(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getSearchNearbyVendorsUseCase();
@@ -81,10 +100,6 @@ export class VendorController {
     }
   }
 
-  /**
-   * POST /api/v1/vendors/:id/verify
-   * Verificar vendedor (admin only)
-   */
   static async verify(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getVerifyVendorUseCase();

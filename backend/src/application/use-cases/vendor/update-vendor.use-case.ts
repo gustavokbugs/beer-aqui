@@ -6,11 +6,15 @@ import { VendorResponseDTO } from '@/application/dtos/vendor.dto';
 
 export interface UpdateVendorDTO {
   vendorId: string;
-  userId: string; // Para verificar autorização
+  userId: string;
   companyName?: string;
   type?: VendorType;
   phone?: string;
-  address?: string;
+  addressStreet?: string;
+  addressNumber?: string;
+  addressCity?: string;
+  addressState?: string;
+  addressZip?: string;
   latitude?: number;
   longitude?: number;
 }
@@ -19,62 +23,72 @@ export class UpdateVendorUseCase {
   constructor(private readonly vendorRepository: IVendorRepository) {}
 
   async execute(dto: UpdateVendorDTO): Promise<VendorResponseDTO> {
-    // Buscar vendedor
     const vendor = await this.vendorRepository.findById(dto.vendorId);
     if (!vendor) {
       throw new NotFoundError('Vendor not found');
     }
 
-    // Verificar autorização (apenas o próprio usuário pode atualizar)
     if (vendor.userId !== dto.userId) {
       throw new UnauthorizedError('You are not authorized to update this vendor');
     }
 
-    // Atualizar campos
     if (dto.companyName !== undefined) {
       if (dto.companyName.trim().length === 0) {
         throw new ValidationError('Company name cannot be empty');
       }
-      vendor.companyName = dto.companyName.trim();
+      vendor.updateCompanyName(dto.companyName.trim());
     }
 
     if (dto.type !== undefined) {
       if (!Object.values(VendorType).includes(dto.type)) {
         throw new ValidationError('Invalid vendor type');
       }
-      vendor.type = dto.type;
+      vendor.updateType(dto.type);
     }
 
     if (dto.phone !== undefined) {
-      vendor.phone = dto.phone || null;
+      vendor.updatePhone(dto.phone);
     }
 
-    if (dto.address !== undefined) {
-      vendor.address = dto.address || null;
+    const shouldUpdateAddress =
+      dto.addressStreet !== undefined ||
+      dto.addressNumber !== undefined ||
+      dto.addressCity !== undefined ||
+      dto.addressState !== undefined ||
+      dto.addressZip !== undefined;
+
+    if (shouldUpdateAddress) {
+      vendor.updateAddress({
+        street: dto.addressStreet ?? vendor.address.street,
+        number: dto.addressNumber ?? vendor.address.number,
+        city: dto.addressCity ?? vendor.address.city,
+        state: dto.addressState ?? vendor.address.state,
+        zip: dto.addressZip ?? vendor.address.zip,
+      });
     }
 
-    // Atualizar localização se fornecida
     if (dto.latitude !== undefined && dto.longitude !== undefined) {
       const newLocation = Location.create(dto.latitude, dto.longitude);
       vendor.updateLocation(newLocation);
     }
 
-    // Salvar alterações
     const updatedVendor = await this.vendorRepository.update(vendor);
 
-    // Mapear para DTO de resposta
     return {
       id: updatedVendor.id,
       userId: updatedVendor.userId,
       companyName: updatedVendor.companyName,
-      cnpj: updatedVendor.cnpj.getValue(),
+      cnpj: updatedVendor.cnpj.getFormatted(),
       type: updatedVendor.type,
-      phone: updatedVendor.phone,
+      location: {
+        latitude: updatedVendor.location.getLatitude(),
+        longitude: updatedVendor.location.getLongitude(),
+      },
       address: updatedVendor.address,
-      latitude: updatedVendor.location.latitude,
-      longitude: updatedVendor.location.longitude,
+      phone: updatedVendor.phone,
       isVerified: updatedVendor.isVerified,
       createdAt: updatedVendor.createdAt,
+      updatedAt: updatedVendor.updatedAt,
     };
   }
 }

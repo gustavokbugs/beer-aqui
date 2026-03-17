@@ -29,8 +29,8 @@ export const productService = {
       params.radiusInMeters = (filters.radiusKm || 5) * 1000;
     }
 
-    params.page = 1;
-    params.limit = 50;
+    params.page = filters.page || 1;
+    params.limit = filters.limit || 20;
 
     const endpoint = hasCoordinates ? '/products/nearby' : '/products/search';
 
@@ -69,9 +69,9 @@ export const productService = {
     return response.data;
   },
 
-  async getMyProducts(includeInactive = false): Promise<SearchProductsResponse> {
+  async getMyProducts(includeInactive = false, page = 1, limit = 20): Promise<SearchProductsResponse> {
     const response = await apiClient.get<SearchProductsResponse>('/products/my-products', {
-      params: { includeInactive },
+      params: { includeInactive, page, limit },
     });
     return response.data;
   },
@@ -84,6 +84,11 @@ export const productService = {
     description?: string;
   }): Promise<Product> {
     const response = await apiClient.post<Product>('/products', data);
+    return response.data;
+  },
+
+  async updatePrice(productId: string, price: number): Promise<Product> {
+    const response = await apiClient.patch<Product>(`/products/${productId}/price`, { price });
     return response.data;
   },
 

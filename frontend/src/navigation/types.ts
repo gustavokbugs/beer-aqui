@@ -33,6 +33,7 @@ export type VendorStackParamList = {
   ManageAds: undefined;
   CreateAd: { productId?: string } | undefined;
   AddProduct: undefined;
+  EditVendor: undefined;
   EditProduct: { productId: string };
 };
 

@@ -20,7 +20,15 @@ export const ManageAdsScreen = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [ads, setAds] = useState<Ad[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMoreProducts, setIsLoadingMoreProducts] = useState(false);
+  const [isLoadingMoreAds, setIsLoadingMoreAds] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [productsPage, setProductsPage] = useState(1);
+  const [productsTotal, setProductsTotal] = useState(0);
+  const [hasMoreProducts, setHasMoreProducts] = useState(false);
+  const [adsPage, setAdsPage] = useState(1);
+  const [adsTotal, setAdsTotal] = useState(0);
+  const [hasMoreAds, setHasMoreAds] = useState(false);
 
   const productById = useMemo<ProductMap>(
     () => products.reduce((acc, product) => ({ ...acc, [product.id]: product }), {}),
@@ -36,21 +44,62 @@ export const ManageAdsScreen = () => {
       setIsLoading(true);
       setError(null);
 
-      const [myProductsResponse, activeAdsResponse] = await Promise.all([
-        productService.getMyProducts(true),
-        adService.listActive(1, 100),
+      const [myProductsResponse, myAdsResponse] = await Promise.all([
+        productService.getMyProducts(true, 1, 20),
+        adService.listMine(1, 20),
       ]);
 
-      const myProducts = myProductsResponse.products || [];
-      const myProductIds = new Set(myProducts.map((p) => p.id));
-      const myAds = (activeAdsResponse.ads || []).filter((ad) => myProductIds.has(ad.productId));
+      setProducts(myProductsResponse.products || []);
+      setProductsPage(myProductsResponse.page);
+      setProductsTotal(myProductsResponse.total);
+      setHasMoreProducts(myProductsResponse.page * myProductsResponse.limit < myProductsResponse.total);
 
-      setProducts(myProducts);
-      setAds(myAds);
+      setAds(myAdsResponse.ads || []);
+      setAdsPage(myAdsResponse.page);
+      setAdsTotal(myAdsResponse.total);
+      setHasMoreAds(myAdsResponse.page * myAdsResponse.limit < myAdsResponse.total);
     } catch (err: any) {
       setError(err?.response?.data?.message || err?.message || 'Erro ao carregar anúncios');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadMoreProducts = async () => {
+    if (isLoading || isLoadingMoreProducts || !hasMoreProducts) {
+      return;
+    }
+
+    try {
+      setIsLoadingMoreProducts(true);
+      const response = await productService.getMyProducts(true, productsPage + 1, 20);
+      setProducts((current) => [...current, ...response.products]);
+      setProductsPage(response.page);
+      setProductsTotal(response.total);
+      setHasMoreProducts(response.page * response.limit < response.total);
+    } catch (err: any) {
+      Alert.alert('Erro', err?.response?.data?.message || err?.message || 'Erro ao carregar mais produtos');
+    } finally {
+      setIsLoadingMoreProducts(false);
+    }
+  };
+
+  const loadMoreAds = async () => {
+    if (isLoading || isLoadingMoreAds || !hasMoreAds) {
+      return;
+    }
+
+    try {
+      setIsLoadingMoreAds(true);
+      const response = await adService.listMine(adsPage + 1, 20);
+      setAds((current) => [...current, ...response.ads]);
+      setAdsPage(response.page);
+      setAdsTotal(response.total);
+      setHasMoreAds(response.page * response.limit < response.total);
+    } catch (err: any) {
+      Alert.alert('Erro', err?.response?.data?.message || err?.message || 'Erro ao carregar mais anúncios');
+    } finally {
+      setIsLoadingMoreAds(false);
     }
   };
 
@@ -142,6 +191,15 @@ export const ManageAdsScreen = () => {
       <Text variant="h3" weight="semibold">Anúncios ativos</Text>
       <Spacing size="sm" />
 
+      {ads.length > 0 && (
+        <>
+          <Text variant="caption" color="secondary">
+            {ads.length} de {adsTotal} anúncio(s)
+          </Text>
+          <Spacing size="sm" />
+        </>
+      )}
+
       {ads.length === 0 ? (
         <Card variant="outlined" padding="md">
           <Text variant="body" color="secondary">Você ainda não possui anúncios ativos.</Text>
@@ -153,6 +211,23 @@ export const ManageAdsScreen = () => {
           keyExtractor={(item) => item.id}
           ItemSeparatorComponent={() => <Spacing size="sm" />}
           contentContainerStyle={styles.listContainer}
+          ListFooterComponent={
+            isLoadingMoreAds ? (
+              <Loading message="Carregando mais anúncios..." />
+            ) : hasMoreAds ? (
+              <View style={styles.footerContainer}>
+                <Button variant="outline" onPress={loadMoreAds}>
+                  Carregar mais
+                </Button>
+              </View>
+            ) : ads.length > 0 ? (
+              <View style={styles.footerContainer}>
+                <Text variant="caption" color="secondary">
+                  Todos os anúncios foram carregados
+                </Text>
+              </View>
+            ) : null
+          }
         />
       )}
 
@@ -160,6 +235,15 @@ export const ManageAdsScreen = () => {
 
       <Text variant="h3" weight="semibold">Seus produtos</Text>
       <Spacing size="sm" />
+
+      {products.length > 0 && (
+        <>
+          <Text variant="caption" color="secondary">
+            {products.length} de {productsTotal} produto(s)
+          </Text>
+          <Spacing size="sm" />
+        </>
+      )}
 
       {products.length === 0 ? (
         <Card variant="outlined" padding="md">
@@ -172,6 +256,23 @@ export const ManageAdsScreen = () => {
           keyExtractor={(item) => item.id}
           ItemSeparatorComponent={() => <Spacing size="sm" />}
           contentContainerStyle={styles.listContainer}
+          ListFooterComponent={
+            isLoadingMoreProducts ? (
+              <Loading message="Carregando mais produtos..." />
+            ) : hasMoreProducts ? (
+              <View style={styles.footerContainer}>
+                <Button variant="outline" onPress={loadMoreProducts}>
+                  Carregar mais
+                </Button>
+              </View>
+            ) : products.length > 0 ? (
+              <View style={styles.footerContainer}>
+                <Text variant="caption" color="secondary">
+                  Todos os produtos foram carregados
+                </Text>
+              </View>
+            ) : null
+          }
         />
       )}
     </Container>
@@ -184,6 +285,10 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     paddingBottom: theme.spacing.sm,
+  },
+  footerContainer: {
+    paddingVertical: theme.spacing.lg,
+    alignItems: 'center',
   },
   itemCard: {
     marginBottom: 0,

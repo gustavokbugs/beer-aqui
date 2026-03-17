@@ -36,11 +36,14 @@ export const SearchScreen = () => {
   const {
     products,
     isLoading,
+    isLoadingMore,
     error,
     searchProducts,
+    loadMoreProducts,
     filters,
+    total,
+    hasMore,
     setFilters,
-    clearError,
   } = useProductStore();
   const { currentLocation, getCurrentLocation } = useLocationStore();
 
@@ -77,6 +80,8 @@ export const SearchScreen = () => {
         radiusKm: filters.radiusKm || 5,
         latitude: location.latitude,
         longitude: location.longitude,
+        page: 1,
+        limit: 20,
       });
     }
   };
@@ -119,6 +124,8 @@ export const SearchScreen = () => {
       latitude: location?.latitude,
       longitude: location?.longitude,
       radiusKm: filters.radiusKm || 5,
+      page: 1,
+      limit: 20,
     });
   };
 
@@ -134,6 +141,10 @@ export const SearchScreen = () => {
 
   const handleRefresh = async () => {
     await loadInitialData();
+  };
+
+  const handleLoadMore = async () => {
+    await loadMoreProducts();
   };
 
   const renderProduct = ({ item }: { item: Product }) => {
@@ -345,6 +356,15 @@ export const SearchScreen = () => {
             </Button>
           </>
         )}
+
+        {products.length > 0 && (
+          <>
+            <Spacing size="sm" />
+            <Text variant="caption" color="secondary">
+              {products.length} de {total} resultado(s)
+            </Text>
+          </>
+        )}
       </View>
 
       {isLoading && !products.length ? (
@@ -356,6 +376,23 @@ export const SearchScreen = () => {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmptyState}
+          ListFooterComponent={
+            isLoadingMore ? (
+              <Loading message="Carregando mais produtos..." />
+            ) : hasMore ? (
+              <View style={styles.footerContainer}>
+                <Button variant="outline" onPress={handleLoadMore}>
+                  Carregar mais
+                </Button>
+              </View>
+            ) : products.length > 0 ? (
+              <View style={styles.footerContainer}>
+                <Text variant="caption" color="secondary">
+                  Todos os resultados foram carregados
+                </Text>
+              </View>
+            ) : null
+          }
           ItemSeparatorComponent={() => <Spacing size="md" />}
           refreshControl={
             <RefreshControl
@@ -409,6 +446,11 @@ const styles = StyleSheet.create({
     padding: theme.spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.gray[200],
+  },
+
+  footerContainer: {
+    paddingVertical: theme.spacing.lg,
+    alignItems: 'center',
   },
 
   listContent: {

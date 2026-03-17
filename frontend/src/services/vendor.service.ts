@@ -29,9 +29,20 @@ export interface CreateVendorData {
   longitude: number;
 }
 
+export interface UpdateVendorData {
+  companyName?: string;
+  phone?: string;
+  addressStreet?: string;
+  addressNumber?: string;
+  addressCity?: string;
+  addressState?: string;
+  addressZip?: string;
+  latitude?: number;
+  longitude?: number;
+}
+
 export const vendorService = {
   async searchNearby(params: SearchNearbyParams): Promise<SearchNearbyResponse> {
-    // Convert radiusKm to radiusInMeters for backend
     const radiusInMeters = (params.radiusKm || 5) * 1000;
     
     const queryParams = {
@@ -61,6 +72,11 @@ export const vendorService = {
 
   async getMyProfile(): Promise<any> {
     const response = await apiClient.get('/vendors/me');
+    return response.data;
+  },
+
+  async update(vendorId: string, data: UpdateVendorData): Promise<any> {
+    const response = await apiClient.put(`/vendors/${vendorId}`, data);
     return response.data;
   },
 };

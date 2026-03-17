@@ -38,6 +38,7 @@ import { GetBrandSuggestionsUseCase } from '@/application/use-cases/product/get-
 // Use Cases - Ad
 import { CreateAdUseCase } from '@/application/use-cases/ad/create-ad.use-case';
 import { ListActiveAdsUseCase } from '@/application/use-cases/ad/list-active-ads.use-case';
+import { ListVendorAdsUseCase } from '@/application/use-cases/ad/list-vendor-ads.use-case';
 import { CancelAdUseCase } from '@/application/use-cases/ad/cancel-ad.use-case';
 import { ExpireAdsUseCase } from '@/application/use-cases/ad/expire-ads.use-case';
 
@@ -89,6 +90,7 @@ export class DIContainer {
   // Use Cases - Ad
   private static createAdUseCase: CreateAdUseCase;
   private static listActiveAdsUseCase: ListActiveAdsUseCase;
+  private static listVendorAdsUseCase: ListVendorAdsUseCase;
   private static cancelAdUseCase: CancelAdUseCase;
   private static expireAdsUseCase: ExpireAdsUseCase;
 
@@ -394,6 +396,16 @@ export class DIContainer {
       this.listActiveAdsUseCase = new ListActiveAdsUseCase(this.getAdRepository());
     }
     return this.listActiveAdsUseCase;
+  }
+
+  static getListVendorAdsUseCase(): ListVendorAdsUseCase {
+    if (!this.listVendorAdsUseCase) {
+      this.listVendorAdsUseCase = new ListVendorAdsUseCase(
+        this.getAdRepository(),
+        this.getVendorRepository()
+      );
+    }
+    return this.listVendorAdsUseCase;
   }
 
   static getCancelAdUseCase(): CancelAdUseCase {

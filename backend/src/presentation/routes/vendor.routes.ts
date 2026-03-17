@@ -9,47 +9,24 @@ import { createVendorSchema, updateVendorSchema } from '../schemas/vendor.schema
 
 const router = Router();
 
-/**
- * @route   POST /api/v1/vendors
- * @desc    Create new vendor
- * @access  Private (VENDOR role)
- */
 router.post('/', authenticate, authorize(UserRole.VENDOR), validate(createVendorSchema), VendorController.create);
 
-/**
- * @route   GET /api/v1/vendors/nearby
- * @desc    Search nearby vendors (cached)
- * @access  Public
- */
 router.get(
   '/nearby',
   cacheMiddleware({ ttl: CacheTTL.VENDORS_NEARBY, keyGenerator: nearbyVendorsCacheKey }),
   VendorController.searchNearby
 );
 
-/**
- * @route   GET /api/v1/vendors/:id
- * @desc    Get vendor profile (cached)
- * @access  Public
- */
+router.get('/me', authenticate, authorize(UserRole.VENDOR), VendorController.getMyProfile);
+
 router.get(
   '/:id',
   cacheMiddleware({ ttl: CacheTTL.VENDOR_PROFILE }),
   VendorController.getProfile
 );
 
-/**
- * @route   PUT /api/v1/vendors/:id
- * @desc    Update vendor
- * @access  Private (Own vendor only)
- */
 router.put('/:id', authenticate, authorize(UserRole.VENDOR), validate(updateVendorSchema), VendorController.update);
 
-/**
- * @route   POST /api/v1/vendors/:id/verify
- * @desc    Verify vendor
- * @access  Private (ADMIN only)
- */
 router.post('/:id/verify', authenticate, authorize(UserRole.ADMIN), VendorController.verify);
 
 export default router;

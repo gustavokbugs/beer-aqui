@@ -33,6 +33,23 @@ export class AdController {
     }
   }
 
+  static async listMine(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const useCase = DIContainer.getListVendorAdsUseCase();
+      const page = req.query.page ? parseInt(req.query.page as string) : undefined;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      const result = await useCase.execute({
+        userId: req.user!.userId,
+        page,
+        limit,
+      });
+
+      res.status(200).json(result);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   static async cancel(req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> {
     try {
       const useCase = DIContainer.getCancelAdUseCase();

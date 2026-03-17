@@ -5,7 +5,7 @@ import { ProductResponseDTO } from '@/application/dtos/product.dto';
 
 export interface ToggleProductStatusDTO {
   productId: string;
-  userId: string; // Para verificar autorização
+  userId: string;
 }
 
 export class ToggleProductStatusUseCase {
@@ -15,44 +15,42 @@ export class ToggleProductStatusUseCase {
   ) {}
 
   async execute(dto: ToggleProductStatusDTO): Promise<ProductResponseDTO> {
-    // Buscar produto
     const product = await this.productRepository.findById(dto.productId);
     if (!product) {
       throw new NotFoundError('Product not found');
     }
 
-    // Buscar vendedor para verificar autorização
     const vendor = await this.vendorRepository.findById(product.vendorId);
     if (!vendor) {
       throw new NotFoundError('Vendor not found');
     }
 
-    // Verificar autorização
     if (vendor.userId !== dto.userId) {
       throw new UnauthorizedError('You are not authorized to update this product');
     }
 
-    // Alternar status
-    product.isActive = !product.isActive;
+    if (product.isActive) {
+      product.deactivate();
+    } else {
+      product.activate();
+    }
 
-    // Salvar alterações
     const updatedProduct = await this.productRepository.update(product);
 
-    // Mapear para DTO de resposta
     return {
       id: updatedProduct.id,
       vendorId: updatedProduct.vendorId,
-      name: updatedProduct.name,
       brand: updatedProduct.brand,
-      volumeMl: updatedProduct.volumeMl,
+      volume: updatedProduct.volume,
       price: updatedProduct.price,
-      stock: updatedProduct.stock,
+      stockQuantity: updatedProduct.stockQuantity,
       description: updatedProduct.description,
       imageUrl: updatedProduct.imageUrl,
       isActive: updatedProduct.isActive,
       pricePerLiter: updatedProduct.getPricePerLiter(),
-      volumeInLiters: updatedProduct.volumeMl / 1000,
+      volumeInLiters: updatedProduct.getVolumeInLiters(),
       createdAt: updatedProduct.createdAt,
+      updatedAt: updatedProduct.updatedAt,
     };
   }
 }

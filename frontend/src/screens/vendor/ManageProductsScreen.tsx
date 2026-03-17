@@ -26,7 +26,11 @@ export const ManageProductsScreen = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuthStore();
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [hasMore, setHasMore] = useState(false);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -34,18 +38,33 @@ export const ManageProductsScreen = () => {
     }
   }, [authLoading, isAuthenticated]);
 
-  const loadProducts = async () => {
+  const loadProducts = async (nextPage: number = 1, append: boolean = false) => {
     try {
-      setIsLoading(true);
+      if (append) {
+        setIsLoadingMore(true);
+      } else {
+        setIsLoading(true);
+      }
       setError(null);
-      const data = await productService.getMyProducts(true);
-      setProducts(data.products);
+      const data = await productService.getMyProducts(true, nextPage, 20);
+      setProducts((current) => (append ? [...current, ...data.products] : data.products));
+      setPage(data.page);
+      setTotal(data.total);
+      setHasMore(data.page * data.limit < data.total);
     } catch (err: any) {
       console.error('Error loading products:', err);
       setError(err.message || 'Erro ao carregar produtos');
     } finally {
       setIsLoading(false);
+      setIsLoadingMore(false);
     }
+  };
+
+  const loadMoreProducts = async () => {
+    if (isLoading || isLoadingMore || !hasMore) {
+      return;
+    }
+    await loadProducts(page + 1, true);
   };
 
   const handleAddProduct = () => {
@@ -54,6 +73,10 @@ export const ManageProductsScreen = () => {
 
   const handleManageAds = () => {
     navigation.navigate('ManageAds');
+  };
+
+  const handleEditVendor = () => {
+    navigation.navigate('EditVendor');
   };
 
   const handleEditProduct = (product: Product) => {
@@ -156,7 +179,22 @@ export const ManageProductsScreen = () => {
         Gerenciar anúncios
       </Button>
 
+      <Spacing size="md" />
+
+      <Button variant="outline" onPress={handleEditVendor}>
+        Editar empresa
+      </Button>
+
       <Spacing size="lg" />
+
+      {products.length > 0 && (
+        <>
+          <Text variant="caption" color="secondary">
+            {products.length} de {total} produto(s)
+          </Text>
+          <Spacing size="sm" />
+        </>
+      )}
 
       {error ? (
         <ErrorMessage
@@ -182,6 +220,23 @@ export const ManageProductsScreen = () => {
           renderItem={renderProduct}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
+          ListFooterComponent={
+            isLoadingMore ? (
+              <Loading message="Carregando mais produtos..." />
+            ) : hasMore ? (
+              <View style={styles.footerContainer}>
+                <Button variant="outline" onPress={loadMoreProducts}>
+                  Carregar mais
+                </Button>
+              </View>
+            ) : products.length > 0 ? (
+              <View style={styles.footerContainer}>
+                <Text variant="caption" color="secondary">
+                  Todos os produtos foram carregados
+                </Text>
+              </View>
+            ) : null
+          }
           ItemSeparatorComponent={() => <Spacing size="md" />}
         />
       )}
@@ -256,6 +311,10 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
+  },
+  footerContainer: {
+    paddingVertical: theme.spacing.lg,
+    alignItems: 'center',
   },
   fab: {
     position: 'absolute',

@@ -15,6 +15,8 @@ router.get(
   AdController.listActive
 );
 
+router.get('/my-ads', authenticate, authorize(UserRole.VENDOR), AdController.listMine);
+
 router.post('/:id/cancel', authenticate, authorize(UserRole.VENDOR), AdController.cancel);
 
 router.post('/expire', AdController.expire);

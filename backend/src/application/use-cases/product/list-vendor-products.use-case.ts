@@ -3,7 +3,7 @@ import { ProductResponseDTO } from '@/application/dtos/product.dto';
 
 export interface ListVendorProductsDTO {
   vendorId: string;
-  includeInactive?: boolean; // Por padrão, só mostrar ativos
+  includeInactive?: boolean;
   page?: number;
   limit?: number;
 }
@@ -20,38 +20,34 @@ export class ListVendorProductsUseCase {
   constructor(private readonly productRepository: IProductRepository) {}
 
   async execute(dto: ListVendorProductsDTO): Promise<ListVendorProductsResponseDTO> {
-    // Valores padrão
     const page = dto.page || 1;
     const limit = Math.min(dto.limit || 20, 100);
     const includeInactive = dto.includeInactive || false;
 
-    // Buscar produtos do vendedor com paginação
     const { products, total } = await this.productRepository.findByVendorId(
       dto.vendorId,
       page,
       limit
     );
 
-    // Filtrar inativos se necessário
     const filteredProducts = includeInactive
       ? products
       : products.filter((p) => p.isActive);
 
-    // Mapear para DTOs
     const productDTOs: ProductResponseDTO[] = filteredProducts.map((product) => ({
       id: product.id,
       vendorId: product.vendorId,
-      name: product.name,
       brand: product.brand,
-      volumeMl: product.volumeMl,
+      volume: product.volume,
       price: product.price,
-      stock: product.stock,
+      stockQuantity: product.stockQuantity,
       description: product.description,
       imageUrl: product.imageUrl,
       isActive: product.isActive,
       pricePerLiter: product.getPricePerLiter(),
-      volumeInLiters: product.volumeMl / 1000,
+      volumeInLiters: product.getVolumeInLiters(),
       createdAt: product.createdAt,
+      updatedAt: product.updatedAt,
     }));
 
     return {

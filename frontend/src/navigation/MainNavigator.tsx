@@ -14,6 +14,8 @@ import {
   AddProductScreen,
   ManageAdsScreen,
   CreateAdScreen,
+  EditVendorScreen,
+  EditProductScreen,
 } from '@/screens';
 import { Text } from '@/components';
 import { useAuthStore } from '@/store/auth.store';
@@ -46,6 +48,8 @@ const VendorNavigator = () => {
       <VendorStack.Screen name="ManageAds" component={ManageAdsScreen} />
       <VendorStack.Screen name="CreateAd" component={CreateAdScreen} />
       <VendorStack.Screen name="AddProduct" component={AddProductScreen} />
+      <VendorStack.Screen name="EditVendor" component={EditVendorScreen} />
+      <VendorStack.Screen name="EditProduct" component={EditProductScreen} />
     </VendorStack.Navigator>
   );
 };

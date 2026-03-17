@@ -34,6 +34,13 @@ export const adService = {
     return response.data;
   },
 
+  async listMine(page = 1, limit = 20): Promise<ListActiveAdsResponse> {
+    const response = await apiClient.get<ListActiveAdsResponse>('/ads/my-ads', {
+      params: { page, limit },
+    });
+    return response.data;
+  },
+
   async cancel(adId: string): Promise<CancelAdResponse> {
     const response = await apiClient.post<CancelAdResponse>(`/ads/${adId}/cancel`);
     return response.data;

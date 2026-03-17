@@ -51,7 +51,6 @@ export class Vendor {
     return new Vendor(props);
   }
 
-  // Getters
   get id(): string {
     return this.props.id;
   }
@@ -108,7 +107,6 @@ export class Vendor {
     return this.props.type === VendorType.DISTRIBUIDORA;
   }
 
-  // Domain methods
   verify(): void {
     this.props.isVerified = true;
     this.touch();
@@ -127,6 +125,11 @@ export class Vendor {
     this.touch();
   }
 
+  updateType(type: VendorType): void {
+    this.props.type = type;
+    this.touch();
+  }
+
   updateLocation(location: Location): void {
     this.props.location = location;
     this.touch();
@@ -142,37 +145,22 @@ export class Vendor {
     this.touch();
   }
 
-  /**
-   * Calcula distância até outro estabelecimento em metros
-   */
   distanceTo(other: Vendor): number {
     return this.props.location.distanceTo(other.location);
   }
 
-  /**
-   * Calcula distância até outro estabelecimento em quilômetros
-   */
   distanceToKm(other: Vendor): number {
     return this.props.location.distanceToKm(other.location);
   }
 
-  /**
-   * Calcula distância até uma localização em metros
-   */
   distanceToLocation(location: Location): number {
     return this.props.location.distanceTo(location);
   }
 
-  /**
-   * Calcula distância até uma localização em quilômetros
-   */
   distanceToLocationKm(location: Location): number {
     return this.props.location.distanceToKm(location);
   }
 
-  /**
-   * Verifica se está dentro de um raio em metros
-   */
   isWithinRadius(location: Location, radiusInMeters: number): boolean {
     return this.distanceToLocation(location) <= radiusInMeters;
   }
